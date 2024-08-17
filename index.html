@@ -1,0 +1,91 @@
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&family=Noto+Sans+JP&family=Noto+Sans+SC&family=Noto+Sans+TC&display=swap"
+    rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans KR', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans TC', sans-serif;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d4f90e587e6d1842ce8b2bbcc8a3dbff"></script>
+</head>
+
+<body>
+  <div id="map" style="width: 100%; height: 100%;"></div>
+  <script>
+    let isOpen = false
+    const filePath = '/analysis.csv'
+
+    const container = document.getElementById('map')
+    const mapOptions = {
+      center: new kakao.maps.LatLng(37.566535, 126.9779692),
+      level: 8
+    }
+    const map = new kakao.maps.Map(container, mapOptions)
+
+    const mapTypeControl = new kakao.maps.MapTypeControl()
+    const zoomControl = new kakao.maps.ZoomControl()
+    map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
+    map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
+
+    fetch(filePath)
+      .then(response => response.text())
+      .then(text => {
+        const csv = Papa.parse(text)
+        console.log({ data: csv.data })
+        const data = csv.data.map(i => ({
+          title: i[3],
+          latlng: new kakao.maps.LatLng(i[0], i[1]),
+          content: `<div>
+            <div>${i[3]} ${Number(i[4])/10**4}억 (${i[5]}년 승인) </div>
+            <div>${i[7]} ${i[8]} ${Number(i[9]).toFixed(0)}m</div>
+            <div>${i[11]}</div>
+            <div>${i[15]}/${i[16]}층</div>
+            <a href="${i[20]}" target="_blank">카카오 지도</a>
+            <a href="${i[21]}" target="_blank">네이버 부동산</a> 
+            <div>${i[2]} 등록</div>
+          </div>`,
+          summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`
+        }))
+
+        data.forEach(i => {
+          const marker = new kakao.maps.Marker({
+            map,
+            position: i.latlng,
+            title: i.title,
+            clickable: true,
+          })
+          const infowindow = new kakao.maps.InfoWindow({
+            content: i.content,
+            removable: true,
+          })
+          const summary = new kakao.maps.InfoWindow({
+            content: i.summary,
+          })
+
+          // kakao.maps.event.addListener(summary, 'mouseover', makeOverListener(map, marker, summary))
+          // kakao.maps.event.addListener(summary, 'mouseout', makeOutListener(summary))
+          kakao.maps.event.addListener(marker, 'click', makeClickListener(map, marker, infowindow))
+        })
+      })
+      .catch(error => console.error('Error loading CSV file:', error))
+
+    const makeClickListener = (map, marker, infowindow) => () => {
+      if (isOpen) {
+        infowindow.close()
+        isOpen = false
+      } else {
+        infowindow.open(map, marker)
+        isOpen = true
+      }
+    }
+    const makeOverListener = (map, marker, infowindow) => () => infowindow.open(map, marker)
+    const makeOutListener = (infowindow) => () => infowindow.close()
+  </script>
+</body>
+
+</html>
