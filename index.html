@@ -20,7 +20,8 @@
 
     #mapWrapper {
       width: 100%;
-      height: 100%; /* 기본적으로 지도가 전체 화면을 차지하도록 설정 */
+      height: 100%;
+      /* 기본적으로 지도가 전체 화면을 차지하도록 설정 */
       z-index: 1;
     }
 
@@ -31,15 +32,18 @@
       right: 0;
       position: absolute;
       z-index: 0;
-      display: none; /* 기본적으로 로드뷰는 숨겨져 있음 */
+      display: none;
+      /* 기본적으로 로드뷰는 숨겨져 있음 */
     }
 
     #container.view_roadview #mapWrapper {
-      width: 30%; /* 로드뷰가 활성화되면 PC에서 맵이 30%로 줄어듬 */
+      width: 30%;
+      /* 로드뷰가 활성화되면 PC에서 맵이 30%로 줄어듬 */
     }
 
     #container.view_roadview #rvWrapper {
-      display: block; /* 로드뷰가 활성화되면 로드뷰를 표시 */
+      display: block;
+      /* 로드뷰가 활성화되면 로드뷰를 표시 */
     }
 
     #roadviewControl {
@@ -79,11 +83,13 @@
     /* PC 환경 스타일 (화면 너비가 768px 이상일 때) */
     @media screen and (min-width: 768px) {
       #container.view_roadview #mapWrapper {
-        width: 30%; /* 로드뷰가 활성화되면 맵이 30%로 줄어듬 */
+        width: 30%;
+        /* 로드뷰가 활성화되면 맵이 30%로 줄어듬 */
       }
 
       #rvWrapper {
-        width: 70%; /* 로드뷰가 활성화되면 로드뷰가 70% 차지 */
+        width: 70%;
+        /* 로드뷰가 활성화되면 로드뷰가 70% 차지 */
         height: 100%;
         position: absolute;
         top: 0;
@@ -92,7 +98,8 @@
     }
 
     /* 모바일 환경 스타일 (화면 너비가 768px 미만일 때) */
-    @media screen and (max-device-width: 1000px), screen and (max-width: 767px) {
+    @media screen and (max-device-width: 1000px),
+    screen and (max-width: 767px) {
       #container {
         display: flex;
         flex-direction: column;
@@ -100,31 +107,35 @@
 
       #mapWrapper {
         width: 100%;
-        height: 100%; /* 로드뷰가 비활성화된 상태에서 지도가 전체를 차지 */
+        height: 100%;
+        /* 로드뷰가 비활성화된 상태에서 지도가 전체를 차지 */
         z-index: 1;
         position: relative;
       }
 
       #rvWrapper {
         width: 100%;
-        height: 50%; /* 로드뷰가 활성화되면 로드뷰가 위쪽 50% 차지 */
+        height: 50%;
+        /* 로드뷰가 활성화되면 로드뷰가 위쪽 50% 차지 */
         position: relative;
         z-index: 0;
         top: 0;
         right: 0;
-        display: none; /* 기본적으로 로드뷰는 숨겨져 있음 */
+        display: none;
+        /* 기본적으로 로드뷰는 숨겨져 있음 */
       }
 
       #container.view_roadview #mapWrapper {
         width: 100%;
-        height: 50%; /* 로드뷰가 활성화되면 맵이 아래쪽 50%로 줄어듬 */
+        height: 50%;
+        /* 로드뷰가 활성화되면 맵이 아래쪽 50%로 줄어듬 */
       }
 
       #container.view_roadview #rvWrapper {
-        display: block; /* 로드뷰가 활성화되면 로드뷰를 표시 */
+        display: block;
+        /* 로드뷰가 활성화되면 로드뷰를 표시 */
       }
     }
-
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d4f90e587e6d1842ce8b2bbcc8a3dbff"></script>
@@ -167,12 +178,6 @@
     const rv = new kakao.maps.Roadview(rvContainer);
     const rvClient = new kakao.maps.RoadviewClient();
 
-    const positionChangeListener = () => {
-      const rvPosition = rv.getPosition()
-      map.setCenter(rvPosition)
-      if (overlayOn) marker.setPosition(rvPosition)
-    }
-    kakao.maps.event.addListener(rv, 'position_changed', positionChangeListener)
     const markImage = new kakao.maps.MarkerImage(
       'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png',
       new kakao.maps.Size(26, 46),
@@ -190,8 +195,23 @@
       draggable: true
     })
 
-    kakao.maps.event.addListener(marker, 'dragend', function (mouseEvent) {
+    kakao.maps.event.addListener(marker, 'click', function () {
+      console.log('Marker clicked');  // 클릭 이벤트가 발생했는지 확인용 로그
 
+      if (container.className.indexOf('view_roadview') === -1) {
+        console.log('Enabling Roadview');  // 로드뷰 활성화 로그
+        // 로드뷰가 꺼져 있는 상태에서 마커를 클릭한 경우 로드뷰를 켭니다
+        setRoadviewRoad();
+      } else {
+        console.log('Disabling Roadview');  // 로드뷰 비활성화 로그
+        // 로드뷰가 켜져 있는 상태에서 마커를 클릭한 경우 로드뷰를 끕니다
+        closeRoadview();
+      }
+    });
+
+    kakao.maps.event.addListener(rv, 'position_changed', positionChangeListener)
+
+    kakao.maps.event.addListener(marker, 'dragend', function (mouseEvent) {
       // 현재 마커가 놓인 자리의 좌표입니다 
       const position = marker.getPosition()
 
@@ -199,7 +219,6 @@
       toggleRoadview(position)
     })
 
-    //지도에 클릭 이벤트를 등록합니다
     kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
       // 현재 열려있는 infowindow가 있다면 닫습니다
       if (isOpen && currentInfowindow) {
@@ -222,51 +241,27 @@
       toggleRoadview(position)
     })
 
-    // 전달받은 좌표(position)에 가까운 로드뷰의 파노라마 ID를 추출하여
-    // 로드뷰를 설정하는 함수입니다
-    function toggleRoadview(position) {
-      rvClient.getNearestPanoId(position, 50, function (panoId) {
-        // 파노라마 ID가 null 이면 로드뷰를 숨깁니다
-        if (panoId === null) {
-          toggleMapWrapper(true, position)
-        } else {
-          toggleMapWrapper(false, position)
-
-          // panoId로 로드뷰를 설정합니다
-          rv.setPanoId(panoId, position)
-        }
-      })
+    function positionChangeListener() {
+      const rvPosition = rv.getPosition()
+      map.setCenter(rvPosition)
+      if (overlayOn) marker.setPosition(rvPosition)
     }
 
-    // 지도를 감싸고 있는 div의 크기를 조정하는 함수입니다
-    function toggleMapWrapper(active, position) {
-      if (active) {
-
-        // 지도를 감싸고 있는 div의 너비가 100%가 되도록 class를 변경합니다 
-        container.className = ''
-
-        // 지도의 크기가 변경되었기 때문에 relayout 함수를 호출합니다
-        map.relayout()
-
-        // 지도의 너비가 변경될 때 지도중심을 입력받은 위치(position)로 설정합니다
-        map.setCenter(position)
-      } else {
-
-        // 지도만 보여지고 있는 상태이면 지도의 너비가 50%가 되도록 class를 변경하여
-        // 로드뷰가 함께 표시되게 합니다
-        if (container.className.indexOf('view_roadview') === -1) {
-          container.className = 'view_roadview'
-
-          // 지도의 크기가 변경되었기 때문에 relayout 함수를 호출합니다
-          map.relayout()
-
-          // 지도의 너비가 변경될 때 지도중심을 입력받은 위치(position)로 설정합니다
-          map.setCenter(position)
+    function makeClickListener(map, marker, infowindow) {
+      return () => {
+        // 현재 열린 infowindow가 있으면 닫습니다.
+        if (isOpen && currentInfowindow) {
+          currentInfowindow.close()
+          isOpen = false
         }
+
+        // 새로운 infowindow를 열고 현재 열린 infowindow로 설정합니다.
+        infowindow.open(map, marker)
+        currentInfowindow = infowindow
+        isOpen = true
       }
     }
 
-    // 지도 위의 로드뷰 도로 오버레이를 추가,제거하는 함수입니다
     function toggleOverlay(active) {
       if (active) {
         overlayOn = true
@@ -293,7 +288,6 @@
       }
     }
 
-    // 지도 위의 로드뷰 버튼을 눌렀을 때 호출되는 함수입니다
     function setRoadviewRoad() {
       const control = document.getElementById('roadviewControl')
 
@@ -311,10 +305,37 @@
       }
     }
 
-    // 로드뷰에서 X버튼을 눌렀을 때 로드뷰를 지도 뒤로 숨기는 함수입니다
     function closeRoadview() {
       const position = marker.getPosition()
       toggleMapWrapper(true, position)
+    }
+
+    function toggleRoadview(position) {
+      rvClient.getNearestPanoId(position, 50, function (panoId) {
+        // 파노라마 ID가 null 이면 로드뷰를 숨깁니다
+        if (panoId === null) {
+          toggleMapWrapper(true, position)
+        } else {
+          toggleMapWrapper(false, position)
+
+          // panoId로 로드뷰를 설정합니다
+          rv.setPanoId(panoId, position)
+        }
+      })
+    }
+
+    function toggleMapWrapper(active, position) {
+      if (active) {
+        container.className = ''
+        map.relayout()
+        map.setCenter(position)
+      } else {
+        if (container.className.indexOf('view_roadview') === -1) {
+          container.className = 'view_roadview'
+          map.relayout()
+          map.setCenter(position)
+        }
+      }
     }
 
     fetch(filePath)
@@ -326,7 +347,7 @@
           title: i[3],
           latlng: new kakao.maps.LatLng(i[0], i[1]),
           content: `<div>
-            <div>${i[3]} ${Number(i[4])/10**4}억 (${i[5]}년 승인) </div>
+            <div>${i[3]} ${Number(i[4]) / 10 ** 4}억 (${i[5]}년 승인) </div>
             <div>${i[13]} ${i[10]}m2 ${i[17]} ${i[6]}세대</div>
             <div>${i[15]}/${i[16]}층 방/화장실 ${i[18]}/${i[19]}개</div>
             <div>${i[7]} ${i[8]} ${Number(i[9]).toFixed(0)}m</div>
@@ -353,27 +374,6 @@
         })
       })
       .catch(error => console.error('Error loading CSV file:', error))
-
-    const makeClickListener = (map, marker, infowindow) => () => {
-      {{/*  if (isOpen) {
-        infowindow.close()
-        isOpen = false
-      } else {
-        infowindow.open(map, marker)
-        isOpen = true
-      }  */}}
-
-      // 현재 열린 infowindow가 있으면 닫습니다.
-      if (isOpen && currentInfowindow) {
-        currentInfowindow.close();
-        isOpen = false;
-      }
-
-      // 새로운 infowindow를 열고 현재 열린 infowindow로 설정합니다.
-      infowindow.open(map, marker);
-      currentInfowindow = infowindow;
-      isOpen = true;
-    }
   </script>
 </body>
 
