@@ -142,6 +142,7 @@
     </div>
   </div>
   <script>
+    let currentInfowindow = null
     let isOpen = false
     const filePath = '/analysis.csv'
 
@@ -200,6 +201,11 @@
 
     //지도에 클릭 이벤트를 등록합니다
     kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
+      // 현재 열려있는 infowindow가 있다면 닫습니다
+      if (isOpen && currentInfowindow) {
+        currentInfowindow.close();
+        isOpen = false;
+      }
 
       // 지도 위에 로드뷰 도로 오버레이가 추가된 상태가 아니면 클릭이벤트를 무시합니다 
       if (!overlayOn) {
@@ -349,13 +355,24 @@
       .catch(error => console.error('Error loading CSV file:', error))
 
     const makeClickListener = (map, marker, infowindow) => () => {
-      if (isOpen) {
+      {{/*  if (isOpen) {
         infowindow.close()
         isOpen = false
       } else {
         infowindow.open(map, marker)
         isOpen = true
+      }  */}}
+
+      // 현재 열린 infowindow가 있으면 닫습니다.
+      if (isOpen && currentInfowindow) {
+        currentInfowindow.close();
+        isOpen = false;
       }
+
+      // 새로운 infowindow를 열고 현재 열린 infowindow로 설정합니다.
+      infowindow.open(map, marker);
+      currentInfowindow = infowindow;
+      isOpen = true;
     }
   </script>
 </body>
