@@ -346,16 +346,14 @@
         const data = csv.data.map(i => ({
           title: i[3],
           latlng: new kakao.maps.LatLng(i[0], i[1]),
-          content: `<div>
-            <div>${i[3]} ${Number(i[4]) / 10 ** 4}억 (${i[5]}년 승인) </div>
+          content: `<div style="width: 400px;">
+            <div>${i[3]} ${Number(i[4]) / 10 ** 4}억 (${i[5]}년 승인) 
+              <a href="${i[20]}" target="_blank"><img src="https://t1.daumcdn.net/localimg/localimages/07/common/kakaomap_favicon.ico" style="vertical-align: bottom; width: 24px; height: 24px;"/></a> <a href="${i[21]}" target="_blank"><img src="https://www.naver.com/favicon.ico" style="vertical-align: bottom; width: 24px; height: 24px;"/></a>
+            </div>
             <div>${i[13]} ${i[10]}m2 ${i[17]} ${i[6]}세대</div>
             <div>${i[15]}/${i[16]}층 방/화장실 ${i[18]}/${i[19]}개</div>
             <div>${i[7]} ${i[8]} ${Number(i[9]).toFixed(0)}m</div>
-            <div>${i[11]}</div>
-            <div>
-              <a href="${i[20]}" target="_blank">카카오 지도</a>
-              <a href="${i[21]}" target="_blank">네이버 부동산</a> 
-            </div>
+            <div">${i[11]}</div>
             <div>${i[2]} 등록</div>
           </div>`,
           summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`
