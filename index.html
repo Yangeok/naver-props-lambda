@@ -425,9 +425,9 @@
             position: i.latlng,
             title: i.title,
             clickable: true,
-            image: i.dateRange === DateRange.YESTERDAY ? markerRed
-            : i.dateRange === DateRange.LAST_WEEK ? markerBlue
-            : i.dateRange === DateRange.LAST_MONTH ? markerGreen
+            image: i.dateRange === DateRange.YESTERDAY ? markerBlue
+            : i.dateRange === DateRange.LAST_WEEK ? markerGreen
+            : i.dateRange === DateRange.LAST_MONTH ? markerRed
             : markerBlack
           })
           const infowindow = new kakao.maps.InfoWindow({
