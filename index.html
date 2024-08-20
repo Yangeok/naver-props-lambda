@@ -155,7 +155,13 @@
   <script>
     let currentInfowindow = null
     let isOpen = false
-    const filePath = '/analysis.csv'
+    const assets = {
+      filePath: '/analysis.csv',
+      markerRed: '/marker_red.png',
+      markerGreen: '/marker_green.png',
+      markerBlue: '/marker_blue.png',
+      markerBlack: '/marker_black.png',
+    }
 
     let overlayOn = false // 지도 위에 로드뷰 오버레이가 추가된 상태를 가지고 있을 변수
     const container = document.getElementById('container') // 지도와 로드뷰를 감싸고 있는 div 입니다
@@ -338,7 +344,56 @@
       }
     }
 
-    fetch(filePath)
+    function parseDate(str) {
+      if (!str) {
+        return null
+      }
+      const [year, month, day] = str.split('.')
+      return new Date(`20${year}-${month}-${day}`)
+    }
+
+    const DateRange = Object.freeze({
+      LAST_WEEK: 'LAST_WEEK',
+      LAST_MONTH: 'LAST_MONTH',
+      OUT_OF_RANGE: 'OUT_OF_RANGE'
+    })
+
+    function checkDateRange(date) {
+      if (!date) {
+        return DateRange.OUT_OF_RANGE
+      }
+
+      const today = new Date().setHours(0, 0, 0, 0) // 오늘의 자정
+      const oneWeekAgo = new Date(today - 7 * 24 * 60 * 60 * 1000) // 일주일 전의 자정
+      const oneMonthAgo = new Date(today - 30 * 24 * 60 * 60 * 1000) // 한 달 전의 자정
+
+      if (date >= oneWeekAgo && date <= today) {
+        return DateRange.LAST_WEEK // 일주일 전부터 오늘 사이
+      } else if (date >= oneMonthAgo && date < oneWeekAgo) {
+        return DateRange.LAST_MONTH // 한 달 전부터 일주일 전 사이
+      } else {
+        return DateRange.OUT_OF_RANGE // 그 외의 범위
+      }
+    }
+
+    const markerRed = new kakao.maps.MarkerImage(
+      assets.markerRed,
+      new kakao.maps.Size(24, 24),
+    )
+    const markerBlack = new kakao.maps.MarkerImage(
+      assets.markerBlack,
+      new kakao.maps.Size(24, 24),
+    )
+    const markerBlue = new kakao.maps.MarkerImage(
+      assets.markerBlue,
+      new kakao.maps.Size(24, 24),
+    )
+    const markerGreen = new kakao.maps.MarkerImage(
+      assets.markerGreen,
+      new kakao.maps.Size(24, 24),
+    )
+
+    fetch(assets.filePath)
       .then(response => response.text())
       .then(text => {
         const csv = Papa.parse(text)
@@ -356,7 +411,8 @@
             <div">${i[11]}</div>
             <div>${i[2]} 등록</div>
           </div>`,
-          summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`
+          summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`,
+          dateRange: checkDateRange(parseDate(i[2]))
         }))
         data.forEach(i => {
           const marker = new kakao.maps.Marker({
@@ -365,7 +421,7 @@
             title: i.title,
             clickable: true,
             // TODO: 오늘 날짜 수집분인 경우 이미지 표시
-            // image: 
+            image: i.dateRange === DateRange.LAST_WEEK ? markerBlue : i.dateRange === DateRange.LAST_MONTH ? markerGreen : markerBlack
           })
           const infowindow = new kakao.maps.InfoWindow({
             content: i.content,
