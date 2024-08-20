@@ -353,6 +353,7 @@
     }
 
     const DateRange = Object.freeze({
+      YESTERDAY: 'YESTERDAY',
       LAST_WEEK: 'LAST_WEEK',
       LAST_MONTH: 'LAST_MONTH',
       OUT_OF_RANGE: 'OUT_OF_RANGE'
@@ -363,16 +364,19 @@
         return DateRange.OUT_OF_RANGE
       }
 
-      const today = new Date().setHours(0, 0, 0, 0) // 오늘의 자정
-      const oneWeekAgo = new Date(today - 7 * 24 * 60 * 60 * 1000) // 일주일 전의 자정
-      const oneMonthAgo = new Date(today - 30 * 24 * 60 * 60 * 1000) // 한 달 전의 자정
+      const today = new Date().setHours(0, 0, 0, 0)
+      const yesterday = new Date().setHours(0, 0, 0, 0)
+      const oneWeekAgo = new Date(today - 7 * 24 * 60 * 60 * 1000)
+      const oneMonthAgo = new Date(today - 30 * 24 * 60 * 60 * 1000)
 
-      if (date >= oneWeekAgo && date <= today) {
-        return DateRange.LAST_WEEK // 일주일 전부터 오늘 사이
+      if (date >= yesterday && date <= today) {
+        return DateRange.YESTERDAY
+      } else if (date >= oneWeekAgo && date < yesterday) {
+        return DateRange.LAST_WEEK
       } else if (date >= oneMonthAgo && date < oneWeekAgo) {
-        return DateRange.LAST_MONTH // 한 달 전부터 일주일 전 사이
+        return DateRange.LAST_MONTH
       } else {
-        return DateRange.OUT_OF_RANGE // 그 외의 범위
+        return DateRange.OUT_OF_RANGE
       }
     }
 
@@ -420,8 +424,10 @@
             position: i.latlng,
             title: i.title,
             clickable: true,
-            // TODO: 오늘 날짜 수집분인 경우 이미지 표시
-            image: i.dateRange === DateRange.LAST_WEEK ? markerBlue : i.dateRange === DateRange.LAST_MONTH ? markerGreen : markerBlack
+            image: i.dateRange === DateRange.YESTERDAY ? markerRed
+            : i.dateRange === DateRange.LAST_WEEK ? markerBlue
+            : i.dateRange === DateRange.LAST_MONTH ? markerGreen
+            : markerBlack
           })
           const infowindow = new kakao.maps.InfoWindow({
             content: i.content,
