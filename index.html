@@ -484,6 +484,19 @@
         })
       })
       .catch(error => console.error('Error loading CSV file:', error))
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          closeRoadview()
+
+          const control = document.getElementById('roadviewControl')
+
+          if (control.className.indexOf('active') !== -1) {
+            control.className = ''
+            toggleOverlay(false)
+          }
+        }
+      })
   </script>
 </body>
 
