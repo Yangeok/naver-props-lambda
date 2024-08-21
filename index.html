@@ -398,6 +398,27 @@
       new kakao.maps.Size(24, 24),
     )
 
+    function groupBy(array, callback) {
+      return array.reduce((acc, item) => {
+        const key = callback(item)
+        if (!acc[key]) {
+          acc[key] = []
+        }
+        acc[key].push(item)
+        return acc
+      }, {})
+    }
+
+    function filterGroupedItems(groupedItems) {
+      return Object.values(groupedItems).filter(group => group.length > 1)
+    }
+
+    function filterOutGroupedItems(groupedItems) {
+      return Object.values(groupedItems)
+        .filter(group => group.length === 1)
+        .flat()
+    }
+
     fetch(assets.filePath)
       .then(response => response.text())
       .then(text => {
@@ -419,7 +440,31 @@
           summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`,
           dateRange: checkDateRange(parseDate(i[2]))
         }))
-        data.forEach(i => {
+        // latlng이 같은 데이터 추출하여 sameLatLng으로 저장, 아닌 것만 data에 저장
+        // sameLatLng은 하나의 마커에 length를 표시
+        // 마커 infoWwindow에 아이템 정보를 반복하여 담기
+        const groupedData = groupBy(data, i => i.latlng)
+        const groupIncludedData = filterGroupedItems(groupedData)
+        console.log({ groupIncludedData  })
+        
+        groupIncludedData.forEach(i => {
+          const marker = new kakao.maps.Marker({
+            map,
+            position: i[0].latlng,
+            title: i[0].title,
+            clickable: true,
+            image: markerBlack,
+          })
+          const infowindow = new kakao.maps.InfoWindow({
+            content: `${i.map(j => `<div>${j.content}</div>`).join('<hr/>')}`,
+            removable: true,
+          })
+
+          kakao.maps.event.addListener(marker, 'click', makeClickListener(map, marker, infowindow))
+        })
+
+        const groupExcludedData = filterOutGroupedItems(groupedData)
+        groupExcludedData.forEach(i => {
           const marker = new kakao.maps.Marker({
             map,
             position: i.latlng,
