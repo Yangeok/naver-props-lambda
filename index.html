@@ -365,8 +365,8 @@
         return DateRange.OUT_OF_RANGE
       }
       const day = 24 * 60 * 60 * 1000
-      const tomorrow = new Date(today + day)
       const today = new Date().setHours(0, 0, 0, 0)
+      const tomorrow = new Date(today + day)
       const yesterday = new Date(today - day)
       const oneWeekAgo = new Date(today - (7 * day))
       const oneMonthAgo = new Date(today - (30 * day))
