@@ -421,6 +421,10 @@
         .flat()
     }
 
+    function getLatestDate(dates) {
+      return dates.reduce((latest, current) => current > latest ? current : latest)
+    }
+
     fetch(assets.filePath)
       .then(response => response.text())
       .then(text => {
@@ -440,7 +444,7 @@
             <div>${i[2]} 등록</div>
           </div>`,
           summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`,
-          dateRange: checkDateRange(parseDate(i[2]))
+          date: i[2]
         }))
         // latlng이 같은 데이터 추출하여 sameLatLng으로 저장, 아닌 것만 data에 저장
         // sameLatLng은 하나의 마커에 length를 표시
@@ -450,12 +454,16 @@
         console.log({ groupIncludedData  })
         
         groupIncludedData.forEach(i => {
+          const dateRange = checkDateRange(getLatestDate(i.map(j => parseDate(j.date))))
           const marker = new kakao.maps.Marker({
             map,
             position: i[0].latlng,
             title: i[0].title,
             clickable: true,
-            image: markerBlack,
+            image: dateRange === DateRange.YESTERDAY ? markerBlue
+              : dateRange === DateRange.LAST_WEEK ? markerGreen
+              : dateRange === DateRange.LAST_MONTH ? markerRed
+              : markerBlack,
           })
           const infowindow = new kakao.maps.InfoWindow({
             content: `${i.map(j => `<div>${j.content}</div>`).join('<hr/>')}`,
@@ -467,14 +475,15 @@
 
         const groupExcludedData = filterOutGroupedItems(groupedData)
         groupExcludedData.forEach(i => {
+          const dateRange = checkDateRange(parseDate(i.date))
           const marker = new kakao.maps.Marker({
             map,
             position: i.latlng,
             title: i.title,
             clickable: true,
-            image: i.dateRange === DateRange.YESTERDAY ? markerBlue
-            : i.dateRange === DateRange.LAST_WEEK ? markerGreen
-            : i.dateRange === DateRange.LAST_MONTH ? markerRed
+            image: dateRange === DateRange.YESTERDAY ? markerBlue
+            : dateRange === DateRange.LAST_WEEK ? markerGreen
+            : dateRange === DateRange.LAST_MONTH ? markerRed
             : markerBlack
           })
           const infowindow = new kakao.maps.InfoWindow({
