@@ -497,16 +497,22 @@
       .catch(error => console.error('Error loading CSV file:', error))
 
       document.addEventListener('keydown', function (event) {
-          if (event.key === 'Escape') {
-            container.className = ''
-            map.relayout()
+        if (event.key === 'Escape') {
+          container.className = ''
+          map.relayout()
 
-            if (isOpen && currentInfowindow) {
-              currentInfowindow.close()
-              isOpen = false
-            }
+          if (isOpen && currentInfowindow) {
+            currentInfowindow.close()
+            isOpen = false
           }
-        })
+        }
+      })
+
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'R' || event.key === 'r') {
+            setRoadviewRoad()
+        }
+      })
   </script>
 </body>
 
