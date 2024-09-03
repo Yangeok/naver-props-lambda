@@ -501,16 +501,16 @@
           container.className = ''
           map.relayout()
 
+          closeRoadview()
+          setRoadviewRoad()
           if (isOpen && currentInfowindow) {
             currentInfowindow.close()
             isOpen = false
           }
         }
-      })
 
-      document.addEventListener('keydown', function(event) {
         if (event.key === 'R' || event.key === 'r') {
-            setRoadviewRoad()
+          setRoadviewRoad()
         }
       })
   </script>
