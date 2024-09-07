@@ -196,7 +196,6 @@
       }
     )
 
-    // 드래그가 가능한 마커를 생성합니다
     const marker = new kakao.maps.Marker({
       image: markImage,
       position: mapCenter,
@@ -204,15 +203,9 @@
     })
 
     kakao.maps.event.addListener(marker, 'click', function () {
-      console.log('Marker clicked');  // 클릭 이벤트가 발생했는지 확인용 로그
-
       if (container.className.indexOf('view_roadview') === -1) {
-        console.log('Enabling Roadview');  // 로드뷰 활성화 로그
-        // 로드뷰가 꺼져 있는 상태에서 마커를 클릭한 경우 로드뷰를 켭니다
         setRoadviewRoad();
       } else {
-        console.log('Disabling Roadview');  // 로드뷰 비활성화 로그
-        // 로드뷰가 켜져 있는 상태에서 마커를 클릭한 경우 로드뷰를 끕니다
         closeRoadview();
       }
     });
@@ -220,32 +213,22 @@
     kakao.maps.event.addListener(rv, 'position_changed', positionChangeListener)
 
     kakao.maps.event.addListener(marker, 'dragend', function (mouseEvent) {
-      // 현재 마커가 놓인 자리의 좌표입니다 
       const position = marker.getPosition()
 
-      // 마커가 놓인 위치를 기준으로 로드뷰를 설정합니다
       toggleRoadview(position)
     })
 
     kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
-      // 현재 열려있는 infowindow가 있다면 닫습니다
       if (isOpen && currentInfowindow) {
         currentInfowindow.close();
         isOpen = false;
       }
-
-      // 지도 위에 로드뷰 도로 오버레이가 추가된 상태가 아니면 클릭이벤트를 무시합니다 
       if (!overlayOn) {
         return
       }
 
-      // 클릭한 위치의 좌표입니다 
       const position = mouseEvent.latLng
-
-      // 마커를 클릭한 위치로 옮깁니다
       marker.setPosition(position)
-
-      // 클락한 위치를 기준으로 로드뷰를 설정합니다
       toggleRoadview(position)
     })
 
@@ -257,13 +240,11 @@
 
     function makeClickListener(map, marker, infowindow) {
       return () => {
-        // 현재 열린 infowindow가 있으면 닫습니다.
         if (isOpen && currentInfowindow) {
           currentInfowindow.close()
           isOpen = false
         }
 
-        // 새로운 infowindow를 열고 현재 열린 infowindow로 설정합니다.
         infowindow.open(map, marker)
         currentInfowindow = infowindow
         isOpen = true
@@ -273,42 +254,24 @@
     function toggleOverlay(active) {
       if (active) {
         overlayOn = true
-
-        // 지도 위에 로드뷰 도로 오버레이를 추가합니다
         map.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
-
-        // 지도 위에 마커를 표시합니다
         marker.setMap(map)
-
-        // 마커의 위치를 지도 중심으로 설정합니다 
         marker.setPosition(map.getCenter())
-
-        // 로드뷰의 위치를 지도 중심으로 설정합니다
         toggleRoadview(map.getCenter())
       } else {
         overlayOn = false
-
-        // 지도 위의 로드뷰 도로 오버레이를 제거합니다
         map.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
-
-        // 지도 위의 마커를 제거합니다
         marker.setMap(null)
       }
     }
 
     function setRoadviewRoad() {
       const control = document.getElementById('roadviewControl')
-
-      // 버튼이 눌린 상태가 아니면
       if (control.className.indexOf('active') === -1) {
         control.className = 'active'
-
-        // 로드뷰 도로 오버레이가 보이게 합니다
         toggleOverlay(true)
       } else {
         control.className = ''
-
-        // 로드뷰 도로 오버레이를 제거합니다
         toggleOverlay(false)
       }
     }
@@ -320,13 +283,11 @@
 
     function toggleRoadview(position) {
       rvClient.getNearestPanoId(position, 50, function (panoId) {
-        // 파노라마 ID가 null 이면 로드뷰를 숨깁니다
         if (panoId === null) {
           toggleMapWrapper(true, position)
         } else {
           toggleMapWrapper(false, position)
 
-          // panoId로 로드뷰를 설정합니다
           rv.setPanoId(panoId, position)
         }
       })
@@ -430,28 +391,28 @@
       .then(text => {
         const csv = Papa.parse(text)
 
-        const data = csv.data.map(i => ({
-          title: i[3],
-          latlng: new kakao.maps.LatLng(i[0], i[1]),
-          content: `<div style="width: 400px;">
-            <div>${i[3]} ${Number(i[4]) / 10 ** 4}억 (${i[5]}년 승인) 
-              <a href="${i[20]}" target="_blank"><img src="https://t1.daumcdn.net/localimg/localimages/07/common/kakaomap_favicon.ico" style="vertical-align: bottom; width: 24px; height: 24px;"/></a> <a href="${i[21]}" target="_blank"><img src="https://www.naver.com/favicon.ico" style="vertical-align: bottom; width: 24px; height: 24px;"/></a>
-            </div>
-            <div>${i[13]} ${i[10]}m2 ${i[17]} ${i[6]}세대</div>
-            <div>${i[15]}/${i[16]}층 방/화장실 ${i[18]}/${i[19]}개</div>
-            <div>${i[7]} ${i[8]} ${Number(i[9]).toFixed(0)}m</div>
-            <div">${i[11]}</div>
-            <div>${i[2]} 등록</div>
-          </div>`,
-          summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`,
-          date: i[2]
-        }))
-        // latlng이 같은 데이터 추출하여 sameLatLng으로 저장, 아닌 것만 data에 저장
-        // sameLatLng은 하나의 마커에 length를 표시
-        // 마커 infoWwindow에 아이템 정보를 반복하여 담기
+        const data = csv.data.slice(1).map((i, idx) => {
+          const dateByDupedItem = i[22] ? JSON.parse(String(i[22]).replace(/'/ig, '"')).sort((a, b) => parseDate(a) - parseDate(b)) : []
+          return {
+            title: i[3],
+            latlng: new kakao.maps.LatLng(i[0], i[1]),
+            content: `<div style="width: 400px;">
+              <div>${i[3]} ${Number(i[4]) / 10 ** 4}억 (${i[5]}년 승인) 
+                <a href="${i[20]}" target="_blank"><img src="https://t1.daumcdn.net/localimg/localimages/07/common/kakaomap_favicon.ico" style="vertical-align: bottom; width: 24px; height: 24px;"/></a> <a href="${i[21]}" target="_blank"><img src="https://www.naver.com/favicon.ico" style="vertical-align: bottom; width: 24px; height: 24px;"/></a>
+              </div>
+              <div>${i[13]} ${i[10]}m2 ${i[17]} ${i[6]}세대</div>
+              <div>${i[15]}/${i[16]}층 방/화장실 ${i[18]}/${i[19]}개</div>
+              <div>${i[7]} ${i[8]} ${Number(i[9]).toFixed(0)}m</div>
+              <div">${i[11]}</div>
+              <div>${i[2]} 등록${i[2] !== dateByDupedItem[0] ? ` (${dateByDupedItem[0]} 최초 등록)` : ''}</div>
+            </div>`,
+            summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`,
+            date: i[2],
+          }
+        })
+
         const groupedData = groupBy(data, i => i.latlng)
         const groupIncludedData = filterGroupedItems(groupedData)
-        console.log({ groupIncludedData  })
         
         groupIncludedData.forEach(i => {
           const dateRange = checkDateRange(getLatestDate(i.map(j => parseDate(j.date))))
