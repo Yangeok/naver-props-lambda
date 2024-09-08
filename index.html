@@ -139,7 +139,7 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d4f90e587e6d1842ce8b2bbcc8a3dbff"></script>
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d4f90e587e6d1842ce8b2bbcc8a3dbff&libraries=services"></script>
 </head>
 
 <body>
@@ -474,6 +474,36 @@
           setRoadviewRoad()
         }
       })
+    
+      const geocoder = new kakao.maps.services.Geocoder()
+      const addressMarker = new kakao.maps.Marker()
+      const addressInfowindow = new kakao.maps.InfoWindow({zIndex: 1, removable: true})
+
+      kakao.maps.event.addListener(map, 'click', (mouseEvent) => {
+        const latlng = mouseEvent.latLng
+
+        addressMarker.setPosition(latlng)
+        addressMarker.setMap(map)
+
+        searchAddrFromCoords(latlng, function(result, status) {
+          if (status === kakao.maps.services.Status.OK) {
+            const detailAddr = !!result[0].road_address ? result[0].road_address.address_name : result[0].address.address_name
+            const content = `
+              <div style="padding:10px; width:250px; max-width:250px; white-space: normal; word-break: break-all;">
+                ${detailAddr}
+              </div>
+            `
+
+            addressInfowindow.close()
+            addressInfowindow.setContent(content)
+            addressInfowindow.open(map, addressMarker)
+          }   
+        })
+      })
+
+      function searchAddrFromCoords(coords, cb) {
+        geocoder.coord2Address(coords.getLng(), coords.getLat(), cb)
+      }
   </script>
 </body>
 
