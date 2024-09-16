@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { Map, MapMarker, MapTypeControl, ZoomControl, Roadview, RoadviewMarker, MapInfoWindow, useKakaoLoader } from 'react-kakao-maps-sdk'
+import React, { useEffect, useState, useRef } from 'react'
+import {
+  Map,
+  MapMarker,
+  MapTypeControl,
+  ZoomControl,
+  Roadview,
+  RoadviewMarker,
+  MapInfoWindow,
+  useKakaoLoader
+} from 'react-kakao-maps-sdk'
 import Papa from 'papaparse'
 import MarkerContent from './components/MarkerContent'
 import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDateRange } from './utils'
@@ -81,12 +90,7 @@ const App: React.FC = () => {
     Object.values(groupedData).forEach((group) => {
       const position = group[0].latlng
       const dateRanges = group.map((item) => checkDateRange(parseDate(item.date)))
-      const latestDateRange = dateRanges.reduce((prev, curr) => {
-        if (curr === DateRange.YESTERDAY) return curr
-        if (curr === DateRange.LAST_WEEK && prev !== DateRange.YESTERDAY) return curr
-        if (curr === DateRange.TWO_WEEKS_AGO && prev === DateRange.OUT_OF_RANGE) return curr
-        return prev
-      }, DateRange.OUT_OF_RANGE)
+      const latestDateRange = getLatestDateRange(dateRanges)
 
       const markerData: MarkerData = {
         position,
@@ -127,6 +131,7 @@ const App: React.FC = () => {
               height: 24,
             },
           }}
+          clickable={true}
           onClick={() => setSelectedMarker(markerData)}
         />
       )
