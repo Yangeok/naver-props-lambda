@@ -14,6 +14,8 @@ import MarkerContent from './components/MarkerContent'
 import { useFetchCsv } from './hooks/useFetchCSV'
 import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
 import './index.css'
+import { MarkerContent } from './components/MarkerContent'
+import { mapCenter } from './constants'
 
 const { VITE_KAKAO_APP_KEY } = import.meta.env
 
@@ -31,11 +33,6 @@ const App: React.FC = () => {
   const { rows, error } = useFetchCsv('/analysis.csv')
 
   const mapRef = useRef<kakao.maps.Map>()
-
-  const mapCenter = {
-    lat: 37.566535,
-    lng: 126.9779692,
-  }
 
   useEffect(() => {
     if (error) console.error('Error loading CSV file:', error)
