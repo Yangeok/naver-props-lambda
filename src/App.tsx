@@ -240,19 +240,6 @@ const App: React.FC = () => {
     if (isRoadviewVisible) {
       setRoadviewPosition(mouseEvent.latLng)
     }
-
-    // TMP:
-    // // 역지오코딩 처리
-    // const geocoder = new kakao.maps.services.Geocoder()
-    // geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (result, status) => {
-    //   if (status === kakao.maps.services.Status.OK) {
-    //     const detailAddr = result[0].road_address
-    //       ? result[0].road_address.address_name
-    //       : result[0].address.address_name
-    //     setAddressInfo(detailAddr)
-    //     setAddressPosition({ lat: latlng.getLat(), lng: latlng.getLng() })
-    //   }
-    // })
   }
 
   const toggleRoadview = () => {
@@ -283,24 +270,6 @@ const App: React.FC = () => {
             {selectedMarker.content}
           </MapInfoWindow>
         )}
-        {/* TMP: */}
-        {/* {addressInfo && addressPosition && (
-          <>
-            <MapMarker
-              position={addressPosition}
-              onClick={() => setAddressInfo(null)}
-            />
-            <MapInfoWindow
-              position={addressPosition}
-              removable={true}
-              onCloseClick={() => setAddressInfo(null)} // FIXME:
-            >
-              <div style={{ padding: '10px', width: '250px', whiteSpace: 'normal', wordBreak: 'break-all' }}>
-                {addressInfo}
-              </div>
-            </MapInfoWindow>
-          </>
-        )} */}
       </Map>
       <div
         onClick={toggleRoadview}
