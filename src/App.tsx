@@ -10,7 +10,7 @@ import {
   MapInfoWindow,
   useKakaoLoader
 } from 'react-kakao-maps-sdk'
-import { useFetchCsv } from './hooks/useFetchCSV'
+import { useFetchCsv } from './hooks/useFetchCsv'
 import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
 import './index.css'
 import { MarkerContent } from './components/MarkerContent'
@@ -139,13 +139,13 @@ const App: React.FC = () => {
             src: (() => {
               switch (markerData.dateRange) {
                 case DateRange.YESTERDAY:
-                  return 'src/assets/markers/blue.png'
+                  return '/markers/blue.png'
                 case DateRange.LAST_WEEK:
-                  return 'src/assets/markers/green.png'
+                  return '/markers/green.png'
                 case DateRange.TWO_WEEKS_AGO:
-                  return 'src/assets/markers/red.png'
+                  return '/markers/red.png'
                 default:
-                  return 'src/assets/markers/black.png'
+                  return '/markers/black.png'
               }
             })(),
             size: {
@@ -167,7 +167,7 @@ const App: React.FC = () => {
             key={`info-${markerKey}`}
             position={position}
             removable={true}
-            onCloseClick={() => setSelectedMarker(null)}
+          // onCloseClick={() => setSelectedMarker(null)} // FIXME:
           >
             {markerData.content}
           </MapInfoWindow>
@@ -256,7 +256,7 @@ const App: React.FC = () => {
             <MapInfoWindow
               position={selectedMarker.position}
               removable={true}
-              onCloseClick={() => setSelectedMarker(null)}
+            // onCloseClick={() => setSelectedMarker(null)} // FIXME:
             >
               {selectedMarker.content}
             </MapInfoWindow>
