@@ -102,21 +102,20 @@ const App: React.FC = () => {
   const renderMarkers = () => {
     const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`))
 
-    const groupIncludedData = groupedData.filter(group => group.length > 1)
-    const groupExcludedData = groupedData.filter(group => group.length === 1).flat()
-
     const markers: React.ReactNode[] = []
-    // 그룹화된 데이터 처리
-    groupIncludedData.forEach((group) => {
+
+    groupedData.forEach((group) => {
       const position = group[0].latlng
       const dates = group.map((item) => parseDate(item.date))
       const latestDate = getLatestDate(dates)
       const dateRange = checkDateRange(latestDate)
 
+      const isGroup = group.length > 1
+
       const markerData: MarkerData = {
         position,
         title: group[0].title,
-        content: (
+        content: isGroup ? (
           <>
             {group.map((item, index) => (
               <React.Fragment key={index}>
@@ -125,11 +124,13 @@ const App: React.FC = () => {
               </React.Fragment>
             ))}
           </>
+        ) : (
+          group[0].content
         ),
         dateRange,
       }
 
-      const markerKey = `group-${position.lat}-${position.lng}`
+      const markerKey = `${isGroup ? 'group' : 'single'}-${position.lat}-${position.lng}`
 
       markers.push(
         <MapMarker
@@ -138,70 +139,18 @@ const App: React.FC = () => {
           title={markerData.title}
           clickable={true}
           image={{
-            src:
-              dateRange === DateRange.YESTERDAY
-                ? 'src/assets/markers/blue.png'
-                : dateRange === DateRange.LAST_WEEK
-                  ? 'src/assets/markers/green.png'
-                  : dateRange === DateRange.TWO_WEEKS_AGO
-                    ? 'src/assets/markers/red.png'
-                    : 'src/assets/markers/black.png',
-            size: {
-              width: 24,
-              height: 24,
-            },
-          }}
-          onClick={() => setSelectedMarker(markerData)}
-        />
-      )
-
-      if (
-        selectedMarker &&
-        selectedMarker.position.lat === position.lat &&
-        selectedMarker.position.lng === position.lng
-      ) {
-        markers.push(
-          <MapInfoWindow
-            key={`info-${markerKey}`}
-            position={position}
-            removable={true}
-            onCloseClick={() => setSelectedMarker(null)}
-          >
-            {markerData.content}
-          </MapInfoWindow>
-        )
-      }
-    })
-
-    // 단일 데이터 처리
-    groupExcludedData.forEach((item) => {
-      const position = item.latlng
-      const dateRange = checkDateRange(parseDate(item.date))
-
-      const markerData: MarkerData = {
-        position,
-        title: item.title,
-        content: item.content,
-        dateRange,
-      }
-
-      const markerKey = `single-${position.lat}-${position.lng}`
-
-      markers.push(
-        <MapMarker
-          key={markerKey}
-          position={position}
-          title={markerData.title}
-          clickable={true}
-          image={{
-            src:
-              dateRange === DateRange.YESTERDAY
-                ? 'src/assets/markers/blue.png'
-                : dateRange === DateRange.LAST_WEEK
-                  ? 'src/assets/markers/green.png'
-                  : dateRange === DateRange.TWO_WEEKS_AGO
-                    ? 'src/assets/markers/red.png'
-                    : 'src/assets/markers/black.png',
+            src: (() => {
+              switch (markerData.dateRange) {
+                case DateRange.YESTERDAY:
+                  return 'src/assets/markers/blue.png'
+                case DateRange.LAST_WEEK:
+                  return 'src/assets/markers/green.png'
+                case DateRange.TWO_WEEKS_AGO:
+                  return 'src/assets/markers/red.png'
+                default:
+                  return 'src/assets/markers/black.png'
+              }
+            })(),
             size: {
               width: 24,
               height: 24,
