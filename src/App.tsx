@@ -28,6 +28,10 @@ const App: React.FC = () => {
   const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
   const [isRoadviewVisible, setIsRoadviewVisible] = useState(false)
   const [roadviewPosition, setRoadviewPosition] = useState<kakao.maps.LatLng>()
+  // const [addressInfo, setAddressInfo] = useState<string | null>(null) // TMP:
+  // const [addressPosition, setAddressPosition] = useState<{ lat: number; lng: number } | null>(null) // TMP:
+
+  const mapRef = useRef<kakao.maps.Map>()
 
   const mapCenter = {
     lat: 37.566535,
@@ -75,13 +79,25 @@ const App: React.FC = () => {
       .catch((error) => console.error('Error loading CSV file:', error))
   }, [])
 
-  const parseDate = (str: string) => {
-    if (!str) {
-      return new Date(0)
+  useEffect(() => {
+    // 키보드 이벤트 리스너 추가
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsRoadviewVisible(false)
+        setSelectedMarker(null)
+      }
+      if (event.key === 'R' || event.key === 'r') {
+        setIsRoadviewVisible((prev) => !prev)
+      }
     }
-    const [year, month, day] = str.split('.')
-    return new Date(`20${year}-${month}-${day}`)
-  }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      // 이벤트 리스너 정리
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
 
   const renderMarkers = () => {
     const groupedData = groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`)
@@ -146,9 +162,21 @@ const App: React.FC = () => {
     }
 
     if (isRoadviewVisible) {
-      const position = mouseEvent.latLng
-      setRoadviewPosition(position)
+      setRoadviewPosition(mouseEvent.latLng)
     }
+
+    // TMP:
+    // // 역지오코딩 처리
+    // const geocoder = new kakao.maps.services.Geocoder()
+    // geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (result, status) => {
+    //   if (status === kakao.maps.services.Status.OK) {
+    //     const detailAddr = result[0].road_address
+    //       ? result[0].road_address.address_name
+    //       : result[0].address.address_name
+    //     setAddressInfo(detailAddr)
+    //     setAddressPosition({ lat: latlng.getLat(), lng: latlng.getLng() })
+    //   }
+    // })
   }
 
   const toggleRoadview = () => {
@@ -157,11 +185,14 @@ const App: React.FC = () => {
 
   return (
     <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
-      <Map // 지도를 표시할 Container
+      <Map
         center={mapCenter}
         style={{ width: '100%', height: '100%' }}
         level={8}
-        onCreate={setMap}
+        onCreate={(mapInstance) => {
+          setMap(mapInstance)
+          mapRef.current = mapInstance
+        }}
         onClick={handleMapClick}
       >
         <MapTypeControl position="TOPRIGHT" />
@@ -171,10 +202,29 @@ const App: React.FC = () => {
           <MapInfoWindow
             position={selectedMarker.position}
             removable={true}
+            onCloseClick={() => setSelectedMarker(null)} // FIXME:
           >
             {selectedMarker.content}
           </MapInfoWindow>
         )}
+        {/* TMP: */}
+        {/* {addressInfo && addressPosition && (
+          <>
+            <MapMarker
+              position={addressPosition}
+              onClick={() => setAddressInfo(null)}
+            />
+            <MapInfoWindow
+              position={addressPosition}
+              removable={true}
+              onCloseClick={() => setAddressInfo(null)} // FIXME:
+            >
+              <div style={{ padding: '10px', width: '250px', whiteSpace: 'normal', wordBreak: 'break-all' }}>
+                {addressInfo}
+              </div>
+            </MapInfoWindow>
+          </>
+        )} */}
       </Map>
       <div
         onClick={toggleRoadview}
@@ -198,6 +248,7 @@ const App: React.FC = () => {
             width: '70%',
             height: '100%',
             zIndex: 2,
+            boxShadow: '-2px 0 5px rgba(0,0,0,0.3)',
           }}
         >
           <Roadview
@@ -215,6 +266,21 @@ const App: React.FC = () => {
               }}
             />
           </Roadview>
+          <button
+            onClick={toggleRoadview}
+            style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              padding: '5px 10px',
+              backgroundColor: '#fff',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            닫기
+          </button>
         </div>
       )}
     </div>
