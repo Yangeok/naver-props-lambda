@@ -28,8 +28,7 @@ const App: React.FC = () => {
   const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
   const [isRoadviewVisible, setIsRoadviewVisible] = useState(false)
   const [roadviewPosition, setRoadviewPosition] = useState<kakao.maps.LatLng>()
-  // const [addressInfo, setAddressInfo] = useState<string | null>(null) // TMP:
-  // const [addressPosition, setAddressPosition] = useState<{ lat: number; lng: number } | null>(null) // TMP:
+  const { rows, error } = useFetchCsv('/analysis.csv')
 
   const mapRef = useRef<kakao.maps.Map>()
 
@@ -39,45 +38,46 @@ const App: React.FC = () => {
   }
 
   useEffect(() => {
-    fetch('/analysis.csv')
-      .then((response) => response.text())
-      .then((text) => {
-        const parsedData = Papa.parse<string[]>(text)
-        const items = parsedData.data.slice(1).map((i) => {
-          const dateByDupedItem = i[22] ? JSON.parse(String(i[22]).replace(/'/g, '"')).sort((a: string, b: string) => parseDate(a).getTime() - parseDate(b).getTime()) : []
-          return {
-            title: i[3],
-            latlng: {
-              lat: parseFloat(i[0]),
-              lng: parseFloat(i[1]),
-            },
-            content: (
-              <MarkerContent
-                title={i[3]}
-                amount={Number(i[4]) / 10 ** 4}
-                approvalYear={i[5]}
-                link1={i[20]}
-                link2={i[21]}
-                area={i[13]}
-                size={i[10]}
-                floorInfo={i[15]}
-                roomInfo={i[16]}
-                subwayLine={i[7]}
-                subway={i[8]}
-                length={Number(i[9]).toFixed(0)}
-                additionalInfo={i[11]}
-                date={i[2]}
-                firstDate={dateByDupedItem[0]}
-              />
-            ),
-            summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`,
-            date: i[2],
-          }
-        })
-        setData(items)
+    if (error) console.error('Error loading CSV file:', error)
+  }, [error])
+
+  useEffect(() => {
+    if (rows.length > 0) {
+      const items = rows.map((i) => {
+        const dateByDupedItem = i[22] ? JSON.parse(String(i[22]).replace(/'/g, '"')).sort((a: string, b: string) => parseDate(a).getTime() - parseDate(b).getTime()) : []
+        return {
+          title: i[3],
+          latlng: {
+            lat: parseFloat(i[0]),
+            lng: parseFloat(i[1]),
+          },
+          content: (
+            <MarkerContent
+              title={i[3]}
+              amount={Number(i[4]) / 10 ** 4}
+              approvalYear={i[5]}
+              link1={i[20]}
+              link2={i[21]}
+              area={i[13]}
+              size={i[10]}
+              floorInfo={i[15]}
+              roomInfo={i[16]}
+              subwayLine={i[7]}
+              subway={i[8]}
+              length={Number(i[9]).toFixed(0)}
+              additionalInfo={i[11]}
+              date={i[2]}
+              firstDate={dateByDupedItem[0]}
+            />
+          ),
+          summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`,
+          date: i[2],
+        }
       })
-      .catch((error) => console.error('Error loading CSV file:', error))
-  }, [])
+      console.log({ items })
+      setData(items)
+    }
+  }, [rows])
 
   useEffect(() => {
     // 키보드 이벤트 리스너 추가
