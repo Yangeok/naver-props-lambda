@@ -13,10 +13,9 @@ import {
 import MarkerContent from './components/MarkerContent'
 import { useFetchCsv } from './hooks/useFetchCSV'
 import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
+import './index.css'
 
-const {
-  VITE_KAKAO_APP_KEY,
-} = import.meta.env
+const { VITE_KAKAO_APP_KEY } = import.meta.env
 
 const App: React.FC = () => {
   useKakaoLoader({
@@ -45,7 +44,11 @@ const App: React.FC = () => {
   useEffect(() => {
     if (rows.length > 0) {
       const items = rows.map((i) => {
-        const dateByDupedItem = i[22] ? JSON.parse(String(i[22]).replace(/'/g, '"')).sort((a: string, b: string) => parseDate(a).getTime() - parseDate(b).getTime()) : []
+        const dateByDupedItem = i[22]
+          ? JSON.parse(String(i[22]).replace(/'/g, '"')).sort(
+            (a: string, b: string) => parseDate(a).getTime() - parseDate(b).getTime()
+          )
+          : []
         return {
           title: i[3],
           latlng: {
@@ -81,7 +84,6 @@ const App: React.FC = () => {
   }, [rows])
 
   useEffect(() => {
-    // 키보드 이벤트 리스너 추가
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsRoadviewVisible(false)
@@ -95,7 +97,6 @@ const App: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      // 이벤트 리스너 정리
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [])
@@ -121,7 +122,7 @@ const App: React.FC = () => {
             {group.map((item, index) => (
               <React.Fragment key={index}>
                 {item.content}
-                {index < group.length - 1 && <hr />}
+                {index < group.length - 1 && <hr className="my-2" />}
               </React.Fragment>
             ))}
           </>
@@ -197,55 +198,50 @@ const App: React.FC = () => {
   }
 
   return (
-    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
-      <Map
-        center={mapCenter}
-        style={{ width: '100%', height: '100%' }}
-        level={8}
-        onCreate={(mapInstance) => {
-          setMap(mapInstance)
-          mapRef.current = mapInstance
-        }}
-        onClick={handleMapClick}
-      >
-        {isRoadviewVisible && roadviewPosition && <MapTypeId type={"ROADVIEW"} />}
-        <MapTypeControl position="TOPRIGHT" />
-        <ZoomControl position="RIGHT" />
-        {renderMarkers()}
-        {selectedMarker && (
-          <MapInfoWindow
-            position={selectedMarker.position}
-            removable={true}
-            onCloseClick={() => setSelectedMarker(null)} // FIXME:
-          >
-            {selectedMarker.content}
-          </MapInfoWindow>
-        )}
-      </Map>
+    <div
+      className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
+        }`}
+    >
       <div
-        onClick={toggleRoadview}
-        style={{
-          position: 'absolute',
-          top: '5px',
-          left: '5px',
-          width: '42px',
-          height: '42px',
-          zIndex: 1,
-          cursor: 'pointer',
-          background: 'url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png) 0 -450px',
-        }}
-      />
+        className={`${isRoadviewVisible ? 'md:w-[30%] w-full md:h-full h-1/2' : 'w-full h-full'
+          }`}
+      >
+        <Map
+          center={mapCenter}
+          className="w-full h-full"
+          level={8}
+          onCreate={(mapInstance) => {
+            setMap(mapInstance)
+            mapRef.current = mapInstance
+          }}
+          onClick={handleMapClick}
+        >
+          {isRoadviewVisible && roadviewPosition && <MapTypeId type={'ROADVIEW'} />}
+          <MapTypeControl position="TOPRIGHT" />
+          <ZoomControl position="RIGHT" />
+          {renderMarkers()}
+          {selectedMarker && (
+            <MapInfoWindow
+              position={selectedMarker.position}
+              removable={true}
+              onCloseClick={() => setSelectedMarker(null)}
+            >
+              {selectedMarker.content}
+            </MapInfoWindow>
+          )}
+        </Map>
+        <div
+          onClick={toggleRoadview}
+          className={`absolute top-1 left-1 w-10 h-10 z-10 cursor-pointer bg-no-repeat ${isRoadviewVisible
+            ? 'bg-[url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png)] bg-[0_-350px]'
+            : 'bg-[url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png)] bg-[0_-450px]'
+            }`}
+        />
+      </div>
       {isRoadviewVisible && roadviewPosition && (
         <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            width: '70%',
-            height: '100%',
-            zIndex: 2,
-            boxShadow: '-2px 0 5px rgba(0,0,0,0.3)',
-          }}
+          className={`${isRoadviewVisible ? 'block' : 'hidden'
+            } md:w-[70%] w-full md:h-full h-1/2 relative`}
         >
           <Roadview
             position={{
@@ -253,7 +249,7 @@ const App: React.FC = () => {
               lng: roadviewPosition.getLng(),
               radius: 50,
             }}
-            style={{ width: '100%', height: '100%' }}
+            className="w-full h-full"
           >
             <RoadviewMarker
               position={{
@@ -264,16 +260,7 @@ const App: React.FC = () => {
           </Roadview>
           <button
             onClick={toggleRoadview}
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              padding: '5px 10px',
-              backgroundColor: '#fff',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="absolute top-2 left-2 px-2 py-1 bg-white border border-gray-300 rounded cursor-pointer"
           >
             닫기
           </button>
