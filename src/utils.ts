@@ -1,4 +1,5 @@
-import { ReactElement } from "react"
+import { differenceInDays, startOfDay } from 'date-fns'
+import { ReactNode } from 'react'
 
 export interface DataItem {
   title: string
@@ -6,7 +7,7 @@ export interface DataItem {
     lat: number
     lng: number
   }
-  content: ReactElement
+  content: ReactNode
   summary: string
   date: string
 }
@@ -17,7 +18,7 @@ export interface MarkerData {
     lng: number
   }
   title: string
-  content: ReactElement
+  content: ReactNode
   dateRange: DateRange
 }
 
@@ -29,18 +30,14 @@ export enum DateRange {
 }
 
 export const checkDateRange = (date: Date): DateRange => {
-  const day = 24 * 60 * 60 * 1000
-  const today = new Date().setHours(0, 0, 0, 0)
-  const tomorrow = new Date(today + day)
-  const yesterday = new Date(today - day)
-  const oneWeekAgo = new Date(today - 7 * day)
-  const twoWeekAgo = new Date(today - 14 * day)
+  const today = startOfDay(new Date())
+  const diffDays = differenceInDays(today, startOfDay(date))
 
-  if (date >= yesterday && date <= tomorrow) {
+  if (diffDays === 0 || diffDays === -1) {
     return DateRange.YESTERDAY
-  } else if (date >= oneWeekAgo && date < yesterday) {
+  } else if (diffDays <= 7 && diffDays > 0) {
     return DateRange.LAST_WEEK
-  } else if (date >= twoWeekAgo && date < oneWeekAgo) {
+  } else if (diffDays <= 14 && diffDays > 7) {
     return DateRange.TWO_WEEKS_AGO
   } else {
     return DateRange.OUT_OF_RANGE
