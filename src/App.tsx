@@ -192,6 +192,17 @@ const App: React.FC = () => {
     setIsRoadviewVisible(!isRoadviewVisible)
   }
 
+  const onDragEnd = (target: kakao.maps.Marker) => {
+    setRoadviewPosition(
+      new kakao.maps.LatLng(target.getPosition().getLat(),
+        target.getPosition().getLng()),
+    )
+  }
+
+  useEffect(() => {
+    console.log({ isRoadviewVisible })
+  }, [isRoadviewVisible])
+
   return (
     <div
       className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
@@ -211,7 +222,33 @@ const App: React.FC = () => {
           }}
           onClick={handleMapClick}
         >
-          {isRoadviewVisible && roadviewPosition && <MapTypeId type={'ROADVIEW'} />}
+          {(isRoadviewVisible && roadviewPosition) && <MapTypeId type={'ROADVIEW'} />}
+          {(isRoadviewVisible && roadviewPosition) && <MapMarker
+            position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng() }}
+            image={{
+              src: 'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png', // 마커 이미지
+              size: {
+                width: 26,
+                height: 46,
+              }, // 마커 크기
+              options: {
+                spriteSize: {
+                  width: 1666,
+                  height: 168,
+                },
+                spriteOrigin: {
+                  x: 705,
+                  y: 114,
+                },
+                offset: {
+                  x: 13,
+                  y: 46,
+                },
+              },
+            }}
+            draggable={true}
+            onDragEnd={onDragEnd}
+          />}
           <MapTypeControl position="TOPRIGHT" />
           <ZoomControl position="RIGHT" />
           {renderMarkers()}
