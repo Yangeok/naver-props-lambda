@@ -100,13 +100,18 @@ const App: React.FC = () => {
   }, [])
 
   const renderMarkers = () => {
-    const groupedData = groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`)
-    const markers: React.ReactNode[] = []
+    const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`))
 
-    Object.values(groupedData).forEach((group) => {
+    const groupIncludedData = groupedData.filter(group => group.length > 1)
+    const groupExcludedData = groupedData.filter(group => group.length === 1).flat()
+
+    const markers: React.ReactNode[] = []
+    // 그룹화된 데이터 처리
+    groupIncludedData.forEach((group) => {
       const position = group[0].latlng
-      const dateRanges = group.map((item) => checkDateRange(parseDate(item.date)))
-      const latestDateRange = getLatestDateRange(dateRanges)
+      const dates = group.map((item) => parseDate(item.date))
+      const latestDate = getLatestDate(dates)
+      const dateRange = checkDateRange(latestDate)
 
       const markerData: MarkerData = {
         position,
@@ -121,36 +126,107 @@ const App: React.FC = () => {
             ))}
           </>
         ),
-        dateRange: latestDateRange,
+        dateRange,
       }
+
+      const markerKey = `group-${position.lat}-${position.lng}`
 
       markers.push(
         <MapMarker
-          key={`${position.lat}-${position.lng}`}
+          key={markerKey}
           position={position}
           title={markerData.title}
+          clickable={true}
           image={{
-            src: (() => {
-              switch (markerData.dateRange) {
-                case DateRange.YESTERDAY:
-                  return 'src/assets/markers/blue.png'
-                case DateRange.LAST_WEEK:
-                  return 'src/assets/markers/green.png'
-                case DateRange.TWO_WEEKS_AGO:
-                  return 'src/assets/markers/red.png'
-                default:
-                  return 'src/assets/markers/black.png'
-              }
-            })(),
+            src:
+              dateRange === DateRange.YESTERDAY
+                ? 'src/assets/markers/blue.png'
+                : dateRange === DateRange.LAST_WEEK
+                  ? 'src/assets/markers/green.png'
+                  : dateRange === DateRange.TWO_WEEKS_AGO
+                    ? 'src/assets/markers/red.png'
+                    : 'src/assets/markers/black.png',
             size: {
               width: 24,
               height: 24,
             },
           }}
-          clickable={true}
           onClick={() => setSelectedMarker(markerData)}
         />
       )
+
+      if (
+        selectedMarker &&
+        selectedMarker.position.lat === position.lat &&
+        selectedMarker.position.lng === position.lng
+      ) {
+        markers.push(
+          <MapInfoWindow
+            key={`info-${markerKey}`}
+            position={position}
+            removable={true}
+            onCloseClick={() => setSelectedMarker(null)}
+          >
+            {markerData.content}
+          </MapInfoWindow>
+        )
+      }
+    })
+
+    // 단일 데이터 처리
+    groupExcludedData.forEach((item) => {
+      const position = item.latlng
+      const dateRange = checkDateRange(parseDate(item.date))
+
+      const markerData: MarkerData = {
+        position,
+        title: item.title,
+        content: item.content,
+        dateRange,
+      }
+
+      const markerKey = `single-${position.lat}-${position.lng}`
+
+      markers.push(
+        <MapMarker
+          key={markerKey}
+          position={position}
+          title={markerData.title}
+          clickable={true}
+          image={{
+            src:
+              dateRange === DateRange.YESTERDAY
+                ? 'src/assets/markers/blue.png'
+                : dateRange === DateRange.LAST_WEEK
+                  ? 'src/assets/markers/green.png'
+                  : dateRange === DateRange.TWO_WEEKS_AGO
+                    ? 'src/assets/markers/red.png'
+                    : 'src/assets/markers/black.png',
+            size: {
+              width: 24,
+              height: 24,
+            },
+          }}
+          onClick={() => setSelectedMarker(markerData)}
+        />
+      )
+
+      if (
+        selectedMarker &&
+        selectedMarker.position.lat === position.lat &&
+        selectedMarker.position.lng === position.lng
+      ) {
+        markers.push(
+          <MapInfoWindow
+            key={`info-${markerKey}`}
+            position={position}
+            removable={true}
+            onCloseClick={() => setSelectedMarker(null)}
+          >
+            {markerData.content}
+          </MapInfoWindow>
+        )
+      }
     })
 
     return markers
