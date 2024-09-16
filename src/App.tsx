@@ -1,34 +1,16 @@
-import React, { ReactElement, useEffect, useState } from 'react'
-import { Map, MapProps, MapMarker, MapTypeControl, ZoomControl, Roadview, RoadviewMarker, MapInfoWindow, useKakaoLoader } from 'react-kakao-maps-sdk'
+import React, { useEffect, useState } from 'react'
+import { Map, MapMarker, MapTypeControl, ZoomControl, Roadview, RoadviewMarker, MapInfoWindow, useKakaoLoader } from 'react-kakao-maps-sdk'
 import Papa from 'papaparse'
 import MarkerContent from './components/MarkerContent'
-import { checkDateRange, DateRange, groupBy } from './utils'
+import { checkDateRange, DateRange, groupBy, DataItem, MarkerData } from './utils'
 
-interface DataItem {
-  title: string
-  latlng: {
-    lat: number
-    lng: number
-  }
-  content: ReactElement
-  summary: string
-  date: string
-}
-
-interface MarkerData {
-  position: {
-    lat: number
-    lng: number
-  }
-  title: string
-  content: ReactElement
-  dateRange: DateRange
-}
-
+const {
+  VITE_KAKAO_APP_KEY,
+} = import.meta.env
 
 const App: React.FC = () => {
   useKakaoLoader({
-    appkey: 'd4f90e587e6d1842ce8b2bbcc8a3dbff', // TODO: load from .env
+    appkey: String(VITE_KAKAO_APP_KEY),
     libraries: ['services'],
   })
 
@@ -109,7 +91,6 @@ const App: React.FC = () => {
       const markerData: MarkerData = {
         position,
         title: group[0].title,
-        // content: group.map((item) => item.content).join('<hr/>'), // REMOVE:
         content: (
           <>
             {group.map((item, index) => (
@@ -187,7 +168,6 @@ const App: React.FC = () => {
             removable={true}
           >
             {selectedMarker.content}
-            {/* <div dangerouslySetInnerHTML={{ __html: selectedMarker.content }} /> */} {/* REMOVE: */}
           </MapInfoWindow>
         )}
       </Map>
