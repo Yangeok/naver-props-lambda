@@ -71,3 +71,17 @@ export const getLatestDateRange = (dateRanges: DateRange[]): DateRange => {
     return prev
   }, DateRange.OUT_OF_RANGE)
 }
+
+export const getLatestDate = (dates: Date[]): Date => {
+  return dates.reduce((latest, current) => (current > latest ? current : latest))
+}
+
+export const filterGroupedItems = <T>(groupedItems: Record<string, T[]>): T[][] => {
+  return Object.values(groupedItems).filter(group => group.length > 1)
+}
+
+export const filterOutGroupedItems = <T>(groupedItems: Record<string, T[]>): T[] => {
+  return Object.values(groupedItems)
+    .filter(group => group.length === 1)
+    .flat()
+}
