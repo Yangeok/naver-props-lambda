@@ -9,9 +9,9 @@ import {
   MapInfoWindow,
   useKakaoLoader
 } from 'react-kakao-maps-sdk'
-import Papa from 'papaparse'
 import MarkerContent from './components/MarkerContent'
-import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDateRange } from './utils'
+import { useFetchCsv } from './hooks/useFetchCSV'
+import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
 
 const {
   VITE_KAKAO_APP_KEY,
