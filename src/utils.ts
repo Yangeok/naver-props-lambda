@@ -54,3 +54,20 @@ export const groupBy = <T, K extends keyof any>(array: T[], getKey: (item: T) =>
     return acc
   }, {} as Record<K, T[]>)
 }
+
+export const parseDate = (str: string) => {
+  if (!str) {
+    return new Date(0)
+  }
+  const [year, month, day] = str.split('.')
+  return new Date(`20${year}-${month}-${day}`)
+}
+
+export const getLatestDateRange = (dateRanges: DateRange[]): DateRange => {
+  return dateRanges.reduce((prev, curr) => {
+    if (curr === DateRange.YESTERDAY) return curr
+    if (curr === DateRange.LAST_WEEK && prev !== DateRange.YESTERDAY) return curr
+    if (curr === DateRange.TWO_WEEKS_AGO && prev === DateRange.OUT_OF_RANGE) return curr
+    return prev
+  }, DateRange.OUT_OF_RANGE)
+}
