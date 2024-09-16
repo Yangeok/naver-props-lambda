@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import {
   Map,
+  MapTypeId,
   MapMarker,
   MapTypeControl,
   ZoomControl,
@@ -207,6 +208,7 @@ const App: React.FC = () => {
         }}
         onClick={handleMapClick}
       >
+        {isRoadviewVisible && roadviewPosition && <MapTypeId type={"ROADVIEW"} />}
         <MapTypeControl position="TOPRIGHT" />
         <ZoomControl position="RIGHT" />
         {renderMarkers()}
