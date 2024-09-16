@@ -1,3 +1,26 @@
+import { ReactElement } from "react"
+
+export interface DataItem {
+  title: string
+  latlng: {
+    lat: number
+    lng: number
+  }
+  content: ReactElement
+  summary: string
+  date: string
+}
+
+export interface MarkerData {
+  position: {
+    lat: number
+    lng: number
+  }
+  title: string
+  content: ReactElement
+  dateRange: DateRange
+}
+
 export enum DateRange {
   YESTERDAY = 'YESTERDAY',
   LAST_WEEK = 'LAST_WEEK',
