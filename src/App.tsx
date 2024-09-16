@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Map, MapMarker, MapTypeControl, ZoomControl, Roadview, RoadviewMarker, MapInfoWindow, useKakaoLoader } from 'react-kakao-maps-sdk'
 import Papa from 'papaparse'
 import MarkerContent from './components/MarkerContent'
-import { checkDateRange, DateRange, groupBy, DataItem, MarkerData } from './utils'
+import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDateRange } from './utils'
 
 const {
   VITE_KAKAO_APP_KEY,
@@ -22,13 +22,13 @@ const App: React.FC = () => {
 
   const mapCenter = {
     lat: 37.566535,
-    lng: 126.9779692
+    lng: 126.9779692,
   }
 
   useEffect(() => {
     fetch('/analysis.csv')
-      .then(response => response.text())
-      .then(text => {
+      .then((response) => response.text())
+      .then((text) => {
         const parsedData = Papa.parse<string[]>(text)
         const items = parsedData.data.slice(1).map((i) => {
           const dateByDupedItem = i[22] ? JSON.parse(String(i[22]).replace(/'/g, '"')).sort((a: string, b: string) => parseDate(a).getTime() - parseDate(b).getTime()) : []
@@ -36,7 +36,7 @@ const App: React.FC = () => {
             title: i[3],
             latlng: {
               lat: parseFloat(i[0]),
-              lng: parseFloat(i[1])
+              lng: parseFloat(i[1]),
             },
             content: (
               <MarkerContent
@@ -63,7 +63,7 @@ const App: React.FC = () => {
         })
         setData(items)
       })
-      .catch(error => console.error('Error loading CSV file:', error))
+      .catch((error) => console.error('Error loading CSV file:', error))
   }, [])
 
   const parseDate = (str: string) => {
