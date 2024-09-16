@@ -18,7 +18,7 @@ interface MarkerContentProps {
   firstDate?: string;
 }
 
-const MarkerContent: React.FC<MarkerContentProps> = ({
+export const MarkerContent: React.FC<MarkerContentProps> = ({
   title,
   amount,
   approvalYear,
@@ -69,5 +69,3 @@ const MarkerContent: React.FC<MarkerContentProps> = ({
     </div>
   )
 }
-
-export default MarkerContent
