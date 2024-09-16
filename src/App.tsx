@@ -10,7 +10,6 @@ import {
   MapInfoWindow,
   useKakaoLoader
 } from 'react-kakao-maps-sdk'
-import MarkerContent from './components/MarkerContent'
 import { useFetchCsv } from './hooks/useFetchCSV'
 import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
 import './index.css'
@@ -75,7 +74,6 @@ const App: React.FC = () => {
           date: i[2],
         }
       })
-      console.log({ items })
       setData(items)
     }
   }, [rows])
