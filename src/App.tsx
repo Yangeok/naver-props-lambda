@@ -191,17 +191,19 @@ const App: React.FC = () => {
           </MapInfoWindow>
         )}
       </Map>
-      <button
+      <div
         onClick={toggleRoadview}
         style={{
           position: 'absolute',
-          top: '10px',
-          left: '10px',
+          top: '5px',
+          left: '5px',
+          width: '42px',
+          height: '42px',
           zIndex: 1,
+          cursor: 'pointer',
+          background: 'url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png) 0 -450px',
         }}
-      >
-        {isRoadviewVisible ? '로드뷰 닫기' : '로드뷰 보기'}
-      </button>
+      />
       {isRoadviewVisible && roadviewPosition && (
         <div
           style={{
