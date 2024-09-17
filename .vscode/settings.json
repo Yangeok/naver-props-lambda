@@ -2,10 +2,14 @@
   "cSpell.words": [
     "appkey",
     "clusterer",
+    "geocoder",
+    "Infowindow",
     "kakao",
     "latlng",
     "naver",
+    "pano",
     "papaparse",
+    "relayout",
     "Roadview",
     "tailwindcss"
   ]
