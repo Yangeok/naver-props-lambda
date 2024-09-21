@@ -92,19 +92,6 @@ const App: React.FC = () => {
   const renderMarkers = () => {
     const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`))
 
-    const getMarkerImageSrc = (dateRange: DateRange) => {
-      switch (dateRange) {
-        case DateRange.YESTERDAY:
-          return '/markers/blue.png'
-        case DateRange.LAST_WEEK:
-          return '/markers/green.png'
-        case DateRange.TWO_WEEKS_AGO:
-          return '/markers/red.png'
-        default:
-          return '/markers/black.png'
-      }
-    }
-
     return groupedData.map((group) => {
       const position = group[0].latlng
       const dateRange = pipe(

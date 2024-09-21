@@ -99,3 +99,16 @@ export const filterOutGroupedItems = <T>(groupedItems: Record<string, T[]>): T[]
     .filter(group => group.length === 1)
     .flat()
 }
+
+export const getMarkerImageSrc = (dateRange: DateRange) => {
+  switch (dateRange) {
+    case DateRange.YESTERDAY:
+      return '/markers/blue.png'
+    case DateRange.LAST_WEEK:
+      return '/markers/green.png'
+    case DateRange.TWO_WEEKS_AGO:
+      return '/markers/red.png'
+    default:
+      return '/markers/black.png'
+  }
+}
