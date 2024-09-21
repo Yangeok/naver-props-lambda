@@ -276,7 +276,7 @@ const App: React.FC = () => {
           </Roadview>
           <button
             onClick={toggleRoadview}
-            className="absolute top-2 left-2 px-2 py-1 bg-white border border-gray-300 rounded cursor-pointer"
+            className="absolute py-1 bg-white border border-gray-300 rounded cursor-pointer top-2 left-2px-2"
           >
             닫기
           </button>
