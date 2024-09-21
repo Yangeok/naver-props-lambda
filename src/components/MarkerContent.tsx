@@ -8,13 +8,17 @@ interface MarkerContentProps {
   link2: string;
   area: string;
   size: string;
-  floorInfo: string;
-  roomInfo: string;
+  householdCount: number;
+  minFloor: number | string;
+  maxFloor: number;
+  rooms: string;
+  bathrooms: string;
   subway: string;
   subwayLine: string;
   length: string;
   additionalInfo: string;
   date: string;
+  direction: string;
   firstDate?: string;
 }
 
@@ -26,13 +30,17 @@ export const MarkerContent: React.FC<MarkerContentProps> = ({
   link2,
   area,
   size,
-  floorInfo,
-  roomInfo,
+  householdCount,
+  minFloor,
+  maxFloor,
+  rooms,
+  bathrooms,
   subway,
   subwayLine,
   length,
   additionalInfo,
   date,
+  direction,
   firstDate,
 }) => {
   const renderLink = (url: string, altText: string, iconUrl: string) => (
@@ -53,10 +61,10 @@ export const MarkerContent: React.FC<MarkerContentProps> = ({
         {renderLink(link2, "Naver Favicon", "https://www.naver.com/favicon.ico")}
       </div>
       <div>
-        {area} {size}m² {approvalYear} {floorInfo}세대
+        {area} {size}m² {direction} {householdCount}세대
       </div>
       <div>
-        {floorInfo}/{roomInfo}층 방/화장실 {roomInfo}/{roomInfo}개
+        {minFloor}/{maxFloor}층 방/화장실 {rooms}/{bathrooms}개
       </div>
       <div>
         {subway && `${subwayLine} (${subway}) ${length}m`}

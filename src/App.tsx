@@ -1,3 +1,5 @@
+import { format } from 'date-fns'
+import { map, pipe } from 'ramda'
 import React, { useEffect, useState, useRef } from 'react'
 import {
   Map,
@@ -26,7 +28,8 @@ const App: React.FC = () => {
 
   const [data, setData] = useState<DataItem[]>([])
   const [_, setMap] = useState<kakao.maps.Map>()
-  const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
+  const [_selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
+  const selectedMarker = useDebounce(_selectedMarker, 150)
   const [isRoadviewVisible, setIsRoadviewVisible] = useState(false)
   const [roadviewPosition, setRoadviewPosition] = useState<kakao.maps.LatLng>()
   const { rows, error } = useFetchCsv('/analysis.csv')
