@@ -10,13 +10,12 @@ import {
   Roadview,
   RoadviewMarker,
   MapInfoWindow,
-  useKakaoLoader
+  useKakaoLoader,
 } from 'react-kakao-maps-sdk'
 import { useFetchCsv, useDebounce } from './hooks'
 import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
 import './index.css'
-import { MarkerContent } from './components/MarkerContent'
-import { mapCenter } from './constants'
+import { MarkerContent, RoadviewButton, RoadviewContainer, MapContainer } from './components'
 
 const { VITE_KAKAO_APP_KEY } = import.meta.env
 
@@ -26,6 +25,8 @@ const App: React.FC = () => {
     libraries: ['services'],
   })
 
+  const [center, setCenter] = useState({ lat: 37.566535, lng: 126.9779692 })
+  const [pan, setPan] = useState(0)
   const [data, setData] = useState<DataItem[]>([])
   const [_, setMap] = useState<kakao.maps.Map>()
   const [_selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
@@ -169,24 +170,24 @@ const App: React.FC = () => {
   }
 
   const handleMapClick = (_: kakao.maps.Map, mouseEvent: kakao.maps.event.MouseEvent) => {
-    if (selectedMarker) {
-      setSelectedMarker(null)
-    }
-
-    if (isRoadviewVisible) {
-      setRoadviewPosition(mouseEvent.latLng)
-    }
+    if (selectedMarker) setSelectedMarker(null)
+    if (isRoadviewVisible) setRoadviewPosition(mouseEvent.latLng)
   }
 
-  const toggleRoadview = () => {
+  const handleRoadview = () => {
     setIsRoadviewVisible(!isRoadviewVisible)
   }
 
-  const onDragEnd = (target: kakao.maps.Marker) => {
+  const handleDragEnd = (target: kakao.maps.Marker) => {
     setRoadviewPosition(
       new kakao.maps.LatLng(target.getPosition().getLat(),
         target.getPosition().getLng()),
     )
+  }
+
+  const handleCreateMap = (mapInstance: kakao.maps.Map) => {
+    setMap(mapInstance)
+    mapRef.current = mapInstance
   }
 
   return (
@@ -194,94 +195,74 @@ const App: React.FC = () => {
       className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
         }`}
     >
-      <div
-        className={`${isRoadviewVisible ? 'md:w-[30%] w-full md:h-full h-1/2' : 'w-full h-full'
-          }`}
-      >
+      <MapContainer isVisible={isRoadviewVisible} >
         <Map
-          center={mapCenter}
+          center={center}
           className="w-full h-full"
           level={8}
-          onCreate={(mapInstance) => {
-            setMap(mapInstance)
-            mapRef.current = mapInstance
-          }}
+          onCreate={handleCreateMap}
           onClick={handleMapClick}
         >
-          {(isRoadviewVisible && roadviewPosition) && <MapTypeId type={'ROADVIEW'} />}
-          {(isRoadviewVisible && roadviewPosition) && <MapMarker
-            position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng() }}
-            image={{
-              src: 'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png',
-              size: {
-                width: 26,
-                height: 46,
-              },
-              options: {
-                spriteSize: {
-                  width: 1666,
-                  height: 168,
-                },
-                spriteOrigin: {
-                  x: 705,
-                  y: 114,
-                },
-                offset: {
-                  x: 13,
-                  y: 46,
-                },
-              },
-            }}
-            draggable={true}
-            onDragEnd={onDragEnd}
-          />}
+          {(isRoadviewVisible && roadviewPosition) && (
+            <>
+              <MapTypeId type={'ROADVIEW'} />
+              <MapMarker
+                position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng() }}
+                image={{
+                  src: 'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png',
+                  size: {
+                    width: 26,
+                    height: 46,
+                  },
+                  options: {
+                    spriteSize: {
+                      width: 1666,
+                      height: 168,
+                    },
+                    spriteOrigin: {
+                      x: 705,
+                      y: 114,
+                    },
+                    offset: {
+                      x: 13,
+                      y: 46,
+                    },
+                  },
+                }}
+                draggable={true}
+                onDragEnd={handleDragEnd}
+              />
+            </>
+          )}
           <MapTypeControl position="TOPRIGHT" />
           <ZoomControl position="RIGHT" />
           {renderMarkers()}
           {selectedMarker && (
-            <MapInfoWindow
-              position={selectedMarker.position}
-              removable={true}
-            >
+            <MapInfoWindow position={selectedMarker.position} removable={true} >
               {selectedMarker.content}
             </MapInfoWindow>
           )}
         </Map>
-        <div
-          onClick={toggleRoadview}
-          className={`absolute top-1 left-1 w-10 h-10 z-10 cursor-pointer bg-no-repeat ${isRoadviewVisible
-            ? 'bg-[url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png)] bg-[0_-350px]'
-            : 'bg-[url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png)] bg-[0_-450px]'
-            }`}
-        />
-      </div>
+        <RoadviewButton onClick={handleRoadview} isVisible={isRoadviewVisible} />
+      </MapContainer>
       {isRoadviewVisible && roadviewPosition && (
-        <div
-          className={`${isRoadviewVisible ? 'block' : 'hidden'
-            } md:w-[70%] w-full md:h-full h-1/2 relative`}
-        >
+        <RoadviewContainer isVisible={isRoadviewVisible}>
           <Roadview
-            position={{
-              lat: roadviewPosition.getLat(),
-              lng: roadviewPosition.getLng(),
-              radius: 50,
-            }}
+            position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng(), radius: 50 }}
             className="w-full h-full"
+            pan={pan}
+            onViewpointChange={(roadview) => setPan(roadview.getViewpoint().pan)}
+            onPositionChanged={(roadview) => setCenter({ lat: roadview.getPosition().getLat(), lng: roadview.getPosition().getLng() })}
           >
-            <RoadviewMarker
-              position={{
-                lat: roadviewPosition.getLat(),
-                lng: roadviewPosition.getLng(),
-              }}
-            />
+            <RoadviewMarker position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng() }} />
           </Roadview>
           <button
-            onClick={toggleRoadview}
+            onClick={handleRoadview}
             className="absolute py-1 bg-white border border-gray-300 rounded cursor-pointer top-2 left-2px-2"
           >
             닫기
           </button>
-        </div>
+        </RoadviewContainer>
       )}
     </div>
   )
