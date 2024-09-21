@@ -88,7 +88,18 @@ const App: React.FC = () => {
   const renderMarkers = () => {
     const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`))
 
-    const markers: React.ReactNode[] = []
+    const getMarkerImageSrc = (dateRange: DateRange) => {
+      switch (dateRange) {
+        case DateRange.YESTERDAY:
+          return '/markers/blue.png'
+        case DateRange.LAST_WEEK:
+          return '/markers/green.png'
+        case DateRange.TWO_WEEKS_AGO:
+          return '/markers/red.png'
+        default:
+          return '/markers/black.png'
+      }
+    }
 
     groupedData.forEach((group) => {
       const position = group[0].latlng
@@ -125,22 +136,8 @@ const App: React.FC = () => {
           title={markerData.title}
           clickable={true}
           image={{
-            src: (() => {
-              switch (markerData.dateRange) {
-                case DateRange.YESTERDAY:
-                  return '/markers/blue.png'
-                case DateRange.LAST_WEEK:
-                  return '/markers/green.png'
-                case DateRange.TWO_WEEKS_AGO:
-                  return '/markers/red.png'
-                default:
-                  return '/markers/black.png'
-              }
-            })(),
-            size: {
-              width: 24,
-              height: 24,
-            },
+            src: getMarkerImageSrc(markerData.dateRange),
+            size: { width: 24, height: 24 },
           }}
           onClick={() => setSelectedMarker(markerData)}
         />
