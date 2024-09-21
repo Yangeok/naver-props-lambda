@@ -190,7 +190,7 @@ const formatFirstDate = (group: DataItem[]) => {
     .map((item) => parseDate(item.date))
     .sort((a, b) => a.getTime() - b.getTime())
 
-  return format(dates[0], 'yy.MM.dd')
+  return format(dates[0], 'yy.MM.dd.')
 }
 
 const getMarkerKey = (group: DataItem[]) => {
@@ -231,7 +231,7 @@ const createInfoWindow = (
     selectedMarker.position.lng === markerData.position.lng
 
   return isSelected ? (
-    <CustomOverlayMap key={`info-${markerKey}`} position={markerData.position}>
+    <CustomOverlayMap key={`info-${markerKey}`} position={markerData.position} clickable={true}>
       {selectedMarker?.content}
     </CustomOverlayMap>
   ) : null
