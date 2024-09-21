@@ -224,11 +224,6 @@ const App: React.FC = () => {
           <MapTypeControl position="TOPRIGHT" />
           <ZoomControl position="RIGHT" />
           {renderMarkers()}
-          {selectedMarker && (
-            <MapInfoWindow position={selectedMarker.position} removable={true} >
-              {selectedMarker.content}
-            </MapInfoWindow>
-          )}
         </Map>
         <RoadviewButton onClick={handleRoadview} isVisible={isRoadviewVisible} />
       </MapContainer>
