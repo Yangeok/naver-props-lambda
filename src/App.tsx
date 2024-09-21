@@ -146,25 +146,17 @@ const App: React.FC = () => {
         />
       )
 
-      if (
+      const infoWindow =
         selectedMarker &&
-        selectedMarker.position.lat === position.lat &&
-        selectedMarker.position.lng === position.lng
-      ) {
-        markers.push(
-          <MapInfoWindow
-            key={`info-${markerKey}`}
-            position={position}
-            removable={true}
-          // onCloseClick={() => setSelectedMarker(null)} // FIXME:
-          >
+          selectedMarker.position.lat === position.lat &&
+          selectedMarker.position.lng === position.lng ? (
+          <MapInfoWindow key={`info-${markerKey}`} position={position} removable={true}>
             {markerData.content}
           </MapInfoWindow>
-        )
-      }
-    })
+        ) : null
 
-    return markers
+      return infoWindow ? [marker, infoWindow] : [marker]
+    }).flat()
   }
 
   const handleMapClick = (_: kakao.maps.Map, mouseEvent: kakao.maps.event.MouseEvent) => {
