@@ -188,10 +188,6 @@ const App: React.FC = () => {
     )
   }
 
-  useEffect(() => {
-    console.log({ isRoadviewVisible })
-  }, [isRoadviewVisible])
-
   return (
     <div
       className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
