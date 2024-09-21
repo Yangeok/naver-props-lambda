@@ -241,7 +241,6 @@ const App: React.FC = () => {
             <MapInfoWindow
               position={selectedMarker.position}
               removable={true}
-            // onCloseClick={() => setSelectedMarker(null)} // FIXME:
             >
               {selectedMarker.content}
             </MapInfoWindow>
