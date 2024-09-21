@@ -211,11 +211,11 @@ const App: React.FC = () => {
           {(isRoadviewVisible && roadviewPosition) && <MapMarker
             position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng() }}
             image={{
-              src: 'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png', // 마커 이미지
+              src: 'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png',
               size: {
                 width: 26,
                 height: 46,
-              }, // 마커 크기
+              },
               options: {
                 spriteSize: {
                   width: 1666,
