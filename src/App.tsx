@@ -9,11 +9,11 @@ import {
   ZoomControl,
   Roadview,
   RoadviewMarker,
-  MapInfoWindow,
   useKakaoLoader,
+  CustomOverlayMap,
 } from 'react-kakao-maps-sdk'
 import { useFetchCsv, useDebounce } from './hooks'
-import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
+import { parseDate, checkDateRange, getMarkerImageSrc, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
 import './index.css'
 import { MarkerContent, RoadviewButton, RoadviewContainer, MapContainer } from './components'
 
@@ -116,7 +116,6 @@ const App: React.FC = () => {
               return (
                 <React.Fragment key={index}>
                   <MarkerContent {...prop} />
-                  {index < group.length - 1 && <hr className="my-2" />}
                 </React.Fragment>
               )
             })}
@@ -147,9 +146,13 @@ const App: React.FC = () => {
         selectedMarker &&
           selectedMarker.position.lat === position.lat &&
           selectedMarker.position.lng === position.lng ? (
-          <MapInfoWindow key={`info-${markerKey}`} position={position} removable={true}>
-            {markerData.content}
-          </MapInfoWindow>
+          // REMOVE:
+          // <MapInfoWindow key={`info-${markerKey}`} position={position} removable={true}>
+          //   {markerData.content}
+          // </MapInfoWindow>
+          <CustomOverlayMap key={`info-${markerKey}`} position={position}>
+            {selectedMarker.content}
+          </CustomOverlayMap>
         ) : null
 
       return infoWindow ? [marker, infoWindow] : [marker]
