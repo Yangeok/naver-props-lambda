@@ -7,8 +7,8 @@ interface IRoadviewButton {
 
 export const RoadviewButton: React.FC<IRoadviewButton> = ({ isVisible, onClick }) => {
   const sourceImage = 'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png'
-  const enabled = 'bg-[0 -350px]'
-  const disabled = 'bg-[0 -450px]'
+  const enabled = 'bg-[0_-350px]'
+  const disabled = 'bg-[0_-450px]'
 
   return (
     <div
