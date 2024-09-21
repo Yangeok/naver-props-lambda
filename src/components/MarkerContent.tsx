@@ -1,28 +1,28 @@
 import React from 'react'
 
-interface MarkerContentProps {
-  title: string;
-  amount: number;
-  approvalYear: string;
-  link1: string;
-  link2: string;
-  area: string;
-  size: string;
-  householdCount: number;
-  minFloor: number | string;
-  maxFloor: number;
-  rooms: string;
-  bathrooms: string;
-  subway: string;
-  subwayLine: string;
-  length: string;
-  additionalInfo: string;
-  date: string;
-  direction: string;
-  firstDate?: string;
+interface IMarkerContent {
+  title: string
+  amount: number
+  approvalYear: string
+  link1: string
+  link2: string
+  area: string
+  size: string
+  householdCount: number
+  minFloor: number | string
+  maxFloor: number
+  rooms: string
+  bathrooms: string
+  subway: string
+  subwayLine: string
+  length: string
+  additionalInfo: string
+  date: string
+  direction: string
+  firstDate?: string
 }
 
-export const MarkerContent: React.FC<MarkerContentProps> = ({
+export const MarkerContent: React.FC<IMarkerContent> = ({
   title,
   amount,
   approvalYear,
@@ -51,7 +51,7 @@ export const MarkerContent: React.FC<MarkerContentProps> = ({
         alt={altText}
       />
     </a>
-  );
+  )
 
   return (
     <div style={{ width: '400px' }}>

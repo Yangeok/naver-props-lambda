@@ -2,28 +2,28 @@ import { differenceInDays, startOfDay } from 'date-fns'
 import { ReactNode } from 'react'
 
 export interface DataItem {
-  title: string;
+  title: string
   latlng: {
     lat: number
     lng: number
-  };
-  amount: number;
-  approvalYear: string;
-  link1: string;
-  link2: string;
-  area: string;
-  size: string;
-  householdCount: number;
-  minFloor: number | string;
-  maxFloor: number;
-  direction: string;
-  rooms: string;
-  bathrooms: string;
-  subwayLine: string;
-  subway: string;
-  length: string;
-  additionalInfo: string;
-  date: string;
+  }
+  amount: number
+  approvalYear: string
+  link1: string
+  link2: string
+  area: string
+  size: string
+  householdCount: number
+  minFloor: number | string
+  maxFloor: number
+  direction: string
+  rooms: string
+  bathrooms: string
+  subwayLine: string
+  subway: string
+  length: string
+  additionalInfo: string
+  date: string
 }
 
 export interface MarkerData {
