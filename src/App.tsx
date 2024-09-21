@@ -39,41 +39,30 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (rows.length > 0) {
-      const items = rows.map((i) => {
-        const dateByDupedItem = i[22]
-          ? JSON.parse(String(i[22]).replace(/'/g, '"')).sort(
-            (a: string, b: string) => parseDate(a).getTime() - parseDate(b).getTime()
-          )
-          : []
-        return {
-          title: i[3],
-          latlng: {
-            lat: parseFloat(i[0]),
-            lng: parseFloat(i[1]),
-          },
-          content: (
-            <MarkerContent
-              title={i[3]}
-              amount={Number(i[4]) / 10 ** 4}
-              approvalYear={i[5]}
-              link1={i[20]}
-              link2={i[21]}
-              area={i[13]}
-              size={i[10]}
-              floorInfo={i[15]}
-              roomInfo={i[16]}
-              subwayLine={i[7]}
-              subway={i[8]}
-              length={Number(i[9]).toFixed(0)}
-              additionalInfo={i[11]}
-              date={i[2]}
-              firstDate={dateByDupedItem[0]}
-            />
-          ),
-          summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`,
-          date: i[2],
-        }
-      })
+      const items = rows.map((i) => ({
+        title: i[3],
+        latlng: {
+          lat: parseFloat(i[0]),
+          lng: parseFloat(i[1]),
+        },
+        amount: Number(i[4]) / 10 ** 4,
+        approvalYear: i[5],
+        link1: i[20],
+        link2: i[21],
+        area: i[13],
+        size: i[10],
+        householdCount: Number(i[6]),
+        minFloor: Number(i[15]) || i[15],
+        maxFloor: Number(i[16]),
+        direction: i[17],
+        rooms: i[18],
+        bathrooms: i[19],
+        subwayLine: i[7],
+        subway: i[8],
+        length: Number(i[9]).toFixed(0),
+        additionalInfo: i[11],
+        date: i[2],
+      }))
       setData(items)
     }
   }, [rows])
