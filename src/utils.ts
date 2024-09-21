@@ -7,8 +7,22 @@ export interface DataItem {
     lat: number
     lng: number
   }
-  content: ReactNode
-  summary: string
+  amount: number
+  approvalYear: string
+  link1: string
+  link2: string
+  area: string
+  size: string
+  householdCount: number
+  minFloor: number | string
+  maxFloor: number
+  direction: string
+  rooms: string
+  bathrooms: string
+  subwayLine: string
+  subway: string
+  length: string
+  additionalInfo: string
   date: string
 }
 
@@ -84,4 +98,17 @@ export const filterOutGroupedItems = <T>(groupedItems: Record<string, T[]>): T[]
   return Object.values(groupedItems)
     .filter(group => group.length === 1)
     .flat()
+}
+
+export const getMarkerImageSrc = (dateRange: DateRange) => {
+  switch (dateRange) {
+    case DateRange.YESTERDAY:
+      return '/markers/blue.png'
+    case DateRange.LAST_WEEK:
+      return '/markers/green.png'
+    case DateRange.TWO_WEEKS_AGO:
+      return '/markers/red.png'
+    default:
+      return '/markers/black.png'
+  }
 }

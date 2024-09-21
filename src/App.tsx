@@ -1,3 +1,5 @@
+import { format } from 'date-fns'
+import { map, pipe } from 'ramda'
 import React, { useEffect, useState, useRef } from 'react'
 import {
   Map,
@@ -7,14 +9,13 @@ import {
   ZoomControl,
   Roadview,
   RoadviewMarker,
-  MapInfoWindow,
-  useKakaoLoader
+  useKakaoLoader,
+  CustomOverlayMap,
 } from 'react-kakao-maps-sdk'
-import { useFetchCsv } from './hooks/useFetchCsv'
-import { parseDate, checkDateRange, DateRange, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
+import { useFetchCsv, useDebounce } from './hooks'
+import { parseDate, checkDateRange, getMarkerImageSrc, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
 import './index.css'
-import { MarkerContent } from './components/MarkerContent'
-import { mapCenter } from './constants'
+import { MarkerContent, RoadviewButton, RoadviewContainer, MapContainer } from './components'
 
 const { VITE_KAKAO_APP_KEY } = import.meta.env
 
@@ -24,9 +25,12 @@ const App: React.FC = () => {
     libraries: ['services'],
   })
 
+  const [center, setCenter] = useState({ lat: 37.566535, lng: 126.9779692 })
+  const [pan, setPan] = useState(0)
   const [data, setData] = useState<DataItem[]>([])
   const [_, setMap] = useState<kakao.maps.Map>()
-  const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
+  const [_selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
+  const selectedMarker = useDebounce(_selectedMarker, 150)
   const [isRoadviewVisible, setIsRoadviewVisible] = useState(false)
   const [roadviewPosition, setRoadviewPosition] = useState<kakao.maps.LatLng>()
   const { rows, error } = useFetchCsv('/analysis.csv')
@@ -39,41 +43,30 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (rows.length > 0) {
-      const items = rows.map((i) => {
-        const dateByDupedItem = i[22]
-          ? JSON.parse(String(i[22]).replace(/'/g, '"')).sort(
-            (a: string, b: string) => parseDate(a).getTime() - parseDate(b).getTime()
-          )
-          : []
-        return {
-          title: i[3],
-          latlng: {
-            lat: parseFloat(i[0]),
-            lng: parseFloat(i[1]),
-          },
-          content: (
-            <MarkerContent
-              title={i[3]}
-              amount={Number(i[4]) / 10 ** 4}
-              approvalYear={i[5]}
-              link1={i[20]}
-              link2={i[21]}
-              area={i[13]}
-              size={i[10]}
-              floorInfo={i[15]}
-              roomInfo={i[16]}
-              subwayLine={i[7]}
-              subway={i[8]}
-              length={Number(i[9]).toFixed(0)}
-              additionalInfo={i[11]}
-              date={i[2]}
-              firstDate={dateByDupedItem[0]}
-            />
-          ),
-          summary: `<div>${i[3]} ${Number(i[4]) / 10 ** 4}억</div>`,
-          date: i[2],
-        }
-      })
+      const items = rows.map((i) => ({
+        title: i[3],
+        latlng: {
+          lat: parseFloat(i[0]),
+          lng: parseFloat(i[1]),
+        },
+        amount: Number(i[4]) / 10 ** 4,
+        approvalYear: i[5],
+        link1: i[20],
+        link2: i[21],
+        area: i[13],
+        size: i[10],
+        householdCount: Number(i[6]),
+        minFloor: Number(i[15]) || i[15],
+        maxFloor: Number(i[16]),
+        direction: i[17],
+        rooms: i[18],
+        bathrooms: i[19],
+        subwayLine: i[7],
+        subway: i[8],
+        length: Number(i[9]).toFixed(0),
+        additionalInfo: i[11],
+        date: i[2],
+      }))
       setData(items)
     }
   }, [rows])
@@ -99,14 +92,18 @@ const App: React.FC = () => {
   const renderMarkers = () => {
     const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`))
 
-    const markers: React.ReactNode[] = []
-
-    groupedData.forEach((group) => {
+    return groupedData.map((group) => {
       const position = group[0].latlng
-      const dates = group.map((item) => parseDate(item.date))
-      const latestDate = getLatestDate(dates)
-      const dateRange = checkDateRange(latestDate)
+      const dateRange = pipe(
+        map((item: DataItem) => parseDate(item.date)),
+        getLatestDate,
+        checkDateRange,
+      )(group)
 
+      const dateByDupedItem = group
+        .map(item => parseDate(item.date))
+        .sort((a, b) => a.getTime() - b.getTime())
+      const firstDate = format(dateByDupedItem[0], 'yy.MM.dd')
       const isGroup = group.length > 1
 
       const markerData: MarkerData = {
@@ -114,189 +111,143 @@ const App: React.FC = () => {
         title: group[0].title,
         content: isGroup ? (
           <>
-            {group.map((item, index) => (
-              <React.Fragment key={index}>
-                {item.content}
-                {index < group.length - 1 && <hr className="my-2" />}
-              </React.Fragment>
-            ))}
+            {group.map((item, index) => {
+              const prop = { ...item, firstDate }
+              return (
+                <React.Fragment key={index}>
+                  <MarkerContent {...prop} />
+                </React.Fragment>
+              )
+            })}
           </>
         ) : (
-          group[0].content
+          <MarkerContent {...group[0]} />
         ),
         dateRange,
       }
 
       const markerKey = `${isGroup ? 'group' : 'single'}-${position.lat}-${position.lng}`
 
-      markers.push(
+      const marker = (
         <MapMarker
           key={markerKey}
           position={position}
           title={markerData.title}
           clickable={true}
           image={{
-            src: (() => {
-              switch (markerData.dateRange) {
-                case DateRange.YESTERDAY:
-                  return '/markers/blue.png'
-                case DateRange.LAST_WEEK:
-                  return '/markers/green.png'
-                case DateRange.TWO_WEEKS_AGO:
-                  return '/markers/red.png'
-                default:
-                  return '/markers/black.png'
-              }
-            })(),
-            size: {
-              width: 24,
-              height: 24,
-            },
+            src: getMarkerImageSrc(markerData.dateRange),
+            size: { width: 24, height: 24 },
           }}
           onClick={() => setSelectedMarker(markerData)}
         />
       )
 
-      if (
+      const infoWindow =
         selectedMarker &&
-        selectedMarker.position.lat === position.lat &&
-        selectedMarker.position.lng === position.lng
-      ) {
-        markers.push(
-          <MapInfoWindow
-            key={`info-${markerKey}`}
-            position={position}
-            removable={true}
-          // onCloseClick={() => setSelectedMarker(null)} // FIXME:
-          >
-            {markerData.content}
-          </MapInfoWindow>
-        )
-      }
-    })
+          selectedMarker.position.lat === position.lat &&
+          selectedMarker.position.lng === position.lng ? (
+          // REMOVE:
+          // <MapInfoWindow key={`info-${markerKey}`} position={position} removable={true}>
+          //   {markerData.content}
+          // </MapInfoWindow>
+          <CustomOverlayMap key={`info-${markerKey}`} position={position}>
+            {selectedMarker.content}
+          </CustomOverlayMap>
+        ) : null
 
-    return markers
+      return infoWindow ? [marker, infoWindow] : [marker]
+    }).flat()
   }
 
   const handleMapClick = (_: kakao.maps.Map, mouseEvent: kakao.maps.event.MouseEvent) => {
-    if (selectedMarker) {
-      setSelectedMarker(null)
-    }
-
-    if (isRoadviewVisible) {
-      setRoadviewPosition(mouseEvent.latLng)
-    }
+    if (selectedMarker) setSelectedMarker(null)
+    if (isRoadviewVisible) setRoadviewPosition(mouseEvent.latLng)
   }
 
-  const toggleRoadview = () => {
+  const handleRoadview = () => {
     setIsRoadviewVisible(!isRoadviewVisible)
   }
 
-  const onDragEnd = (target: kakao.maps.Marker) => {
+  const handleDragEnd = (target: kakao.maps.Marker) => {
     setRoadviewPosition(
       new kakao.maps.LatLng(target.getPosition().getLat(),
         target.getPosition().getLng()),
     )
   }
 
-  useEffect(() => {
-    console.log({ isRoadviewVisible })
-  }, [isRoadviewVisible])
+  const handleCreateMap = (mapInstance: kakao.maps.Map) => {
+    setMap(mapInstance)
+    mapRef.current = mapInstance
+  }
 
   return (
     <div
       className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
         }`}
     >
-      <div
-        className={`${isRoadviewVisible ? 'md:w-[30%] w-full md:h-full h-1/2' : 'w-full h-full'
-          }`}
-      >
+      <MapContainer isVisible={isRoadviewVisible} >
         <Map
-          center={mapCenter}
+          center={center}
           className="w-full h-full"
           level={8}
-          onCreate={(mapInstance) => {
-            setMap(mapInstance)
-            mapRef.current = mapInstance
-          }}
+          onCreate={handleCreateMap}
           onClick={handleMapClick}
         >
-          {(isRoadviewVisible && roadviewPosition) && <MapTypeId type={'ROADVIEW'} />}
-          {(isRoadviewVisible && roadviewPosition) && <MapMarker
-            position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng() }}
-            image={{
-              src: 'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png', // 마커 이미지
-              size: {
-                width: 26,
-                height: 46,
-              }, // 마커 크기
-              options: {
-                spriteSize: {
-                  width: 1666,
-                  height: 168,
-                },
-                spriteOrigin: {
-                  x: 705,
-                  y: 114,
-                },
-                offset: {
-                  x: 13,
-                  y: 46,
-                },
-              },
-            }}
-            draggable={true}
-            onDragEnd={onDragEnd}
-          />}
+          {(isRoadviewVisible && roadviewPosition) && (
+            <>
+              <MapTypeId type={'ROADVIEW'} />
+              <MapMarker
+                position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng() }}
+                image={{
+                  src: 'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png',
+                  size: {
+                    width: 26,
+                    height: 46,
+                  },
+                  options: {
+                    spriteSize: {
+                      width: 1666,
+                      height: 168,
+                    },
+                    spriteOrigin: {
+                      x: 705,
+                      y: 114,
+                    },
+                    offset: {
+                      x: 13,
+                      y: 46,
+                    },
+                  },
+                }}
+                draggable={true}
+                onDragEnd={handleDragEnd}
+              />
+            </>
+          )}
           <MapTypeControl position="TOPRIGHT" />
           <ZoomControl position="RIGHT" />
           {renderMarkers()}
-          {selectedMarker && (
-            <MapInfoWindow
-              position={selectedMarker.position}
-              removable={true}
-            // onCloseClick={() => setSelectedMarker(null)} // FIXME:
-            >
-              {selectedMarker.content}
-            </MapInfoWindow>
-          )}
         </Map>
-        <div
-          onClick={toggleRoadview}
-          className={`absolute top-1 left-1 w-10 h-10 z-10 cursor-pointer bg-no-repeat ${isRoadviewVisible
-            ? 'bg-[url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png)] bg-[0_-350px]'
-            : 'bg-[url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png)] bg-[0_-450px]'
-            }`}
-        />
-      </div>
+        <RoadviewButton onClick={handleRoadview} isVisible={isRoadviewVisible} />
+      </MapContainer>
       {isRoadviewVisible && roadviewPosition && (
-        <div
-          className={`${isRoadviewVisible ? 'block' : 'hidden'
-            } md:w-[70%] w-full md:h-full h-1/2 relative`}
-        >
+        <RoadviewContainer isVisible={isRoadviewVisible}>
           <Roadview
-            position={{
-              lat: roadviewPosition.getLat(),
-              lng: roadviewPosition.getLng(),
-              radius: 50,
-            }}
+            position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng(), radius: 50 }}
             className="w-full h-full"
+            pan={pan}
+            onViewpointChange={(roadview) => setPan(roadview.getViewpoint().pan)}
+            onPositionChanged={(roadview) => setCenter({ lat: roadview.getPosition().getLat(), lng: roadview.getPosition().getLng() })}
           >
-            <RoadviewMarker
-              position={{
-                lat: roadviewPosition.getLat(),
-                lng: roadviewPosition.getLng(),
-              }}
-            />
+            <RoadviewMarker position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng() }} />
           </Roadview>
           <button
-            onClick={toggleRoadview}
-            className="absolute top-2 left-2 px-2 py-1 bg-white border border-gray-300 rounded cursor-pointer"
+            onClick={handleRoadview}
+            className="absolute py-1 bg-white border border-gray-300 rounded cursor-pointer top-2 left-2px-2"
           >
             닫기
           </button>
-        </div>
+        </RoadviewContainer>
       )}
     </div>
   )

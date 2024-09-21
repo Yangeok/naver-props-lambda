@@ -1,24 +1,28 @@
 import React from 'react'
 
-interface MarkerContentProps {
-  title: string;
-  amount: number;
-  approvalYear: string;
-  link1: string;
-  link2: string;
-  area: string;
-  size: string;
-  floorInfo: string;
-  roomInfo: string;
-  subway: string;
-  subwayLine: string;
-  length: string;
-  additionalInfo: string;
-  date: string;
-  firstDate?: string;
+interface IMarkerContent {
+  title: string
+  amount: number
+  approvalYear: string
+  link1: string
+  link2: string
+  area: string
+  size: string
+  householdCount: number
+  minFloor: number | string
+  maxFloor: number
+  rooms: string
+  bathrooms: string
+  subway: string
+  subwayLine: string
+  length: string
+  additionalInfo: string
+  date: string
+  direction: string
+  firstDate?: string
 }
 
-export const MarkerContent: React.FC<MarkerContentProps> = ({
+export const MarkerContent: React.FC<IMarkerContent> = ({
   title,
   amount,
   approvalYear,
@@ -26,43 +30,48 @@ export const MarkerContent: React.FC<MarkerContentProps> = ({
   link2,
   area,
   size,
-  floorInfo,
-  roomInfo,
+  householdCount,
+  minFloor,
+  maxFloor,
+  rooms,
+  bathrooms,
   subway,
   subwayLine,
   length,
   additionalInfo,
   date,
+  direction,
   firstDate,
 }) => {
   const renderLink = (url: string, altText: string, iconUrl: string) => (
-    <a href={url} target="_blank" rel="noopener noreferrer">
+    <a href={url} target="_blank" rel="noopener noreferrer" className="ml-1">
       <img
         src={iconUrl}
-        style={{ verticalAlign: 'bottom', width: '24px', height: '24px' }}
+        className="align-bottom w-[18px] h-[18px]"
         alt={altText}
       />
     </a>
-  );
+  )
 
   return (
-    <div style={{ width: '400px' }}>
-      <div>
+    <div className="relative float-left p-1 mb-1 bg-white border border-b-2 border-gray-300 rounded-md shadow-sm border-b-gray-400 w-72">
+      <div className="text-sm font-semibold whitespace-normal">
         {title} {amount}억 ({approvalYear}년 승인)
         {renderLink(link1, "Kakao Map Favicon", "https://t1.daumcdn.net/localimg/localimages/07/common/kakaomap_favicon.ico")}
         {renderLink(link2, "Naver Favicon", "https://www.naver.com/favicon.ico")}
       </div>
-      <div>
-        {area} {size}m² {approvalYear} {floorInfo}세대
+      <hr />
+      <div className="text-xs whitespace-normal">
+        {area} {size}m² {direction} {householdCount}세대
       </div>
-      <div>
-        {floorInfo}/{roomInfo}층 방/화장실 {roomInfo}/{roomInfo}개
+      <div className="text-xs whitespace-normal">
+        {minFloor}/{maxFloor}층 방/화장실 {rooms}/{bathrooms}개
       </div>
-      <div>
+      <div className="text-xs whitespace-normal">
         {subway && `${subwayLine} (${subway}) ${length}m`}
       </div>
-      <div>{additionalInfo}</div>
-      <div>
+      <div className="text-xs whitespace-normal">{additionalInfo}</div>
+      <div className="text-xs whitespace-normal">
         {date} 등록
         {firstDate && date !== firstDate ? ` (${firstDate} 최초 등록)` : ''}
       </div>
