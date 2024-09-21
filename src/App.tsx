@@ -101,12 +101,18 @@ const App: React.FC = () => {
       }
     }
 
-    groupedData.forEach((group) => {
+    return groupedData.map((group) => {
       const position = group[0].latlng
-      const dates = group.map((item) => parseDate(item.date))
-      const latestDate = getLatestDate(dates)
-      const dateRange = checkDateRange(latestDate)
+      const dateRange = pipe(
+        map((item: DataItem) => parseDate(item.date)),
+        getLatestDate,
+        checkDateRange,
+      )(group)
 
+      const dateByDupedItem = group
+        .map(item => parseDate(item.date))
+        .sort((a, b) => a.getTime() - b.getTime())
+      const firstDate = format(dateByDupedItem[0], 'yy.MM.dd')
       const isGroup = group.length > 1
 
       const markerData: MarkerData = {
@@ -114,22 +120,25 @@ const App: React.FC = () => {
         title: group[0].title,
         content: isGroup ? (
           <>
-            {group.map((item, index) => (
-              <React.Fragment key={index}>
-                {item.content}
-                {index < group.length - 1 && <hr className="my-2" />}
-              </React.Fragment>
-            ))}
+            {group.map((item, index) => {
+              const prop = { ...item, firstDate }
+              return (
+                <React.Fragment key={index}>
+                  <MarkerContent {...prop} />
+                  {index < group.length - 1 && <hr className="my-2" />}
+                </React.Fragment>
+              )
+            })}
           </>
         ) : (
-          group[0].content
+          <MarkerContent {...group[0]} />
         ),
         dateRange,
       }
 
       const markerKey = `${isGroup ? 'group' : 'single'}-${position.lat}-${position.lng}`
 
-      markers.push(
+      const marker = (
         <MapMarker
           key={markerKey}
           position={position}
