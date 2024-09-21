@@ -15,7 +15,7 @@ import {
 import { useFetchCsv, useDebounce } from './hooks'
 import { parseDate, checkDateRange, getMarkerImageSrc, groupBy, DataItem, MarkerData, getLatestDate } from './utils'
 import './index.css'
-import { MarkerContent, RoadviewButton, RoadviewContainer, MapContainer } from './components'
+import { MarkerContent, RoadviewButton } from './components'
 
 const { VITE_KAKAO_APP_KEY } = import.meta.env
 
@@ -90,9 +90,7 @@ const App: React.FC = () => {
   }, [])
 
   const renderMarkers = () => {
-    const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`))
-
-    return groupedData.map((group) => {
+    return Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`)).map((group) => {
       const position = group[0].latlng
       const dateRange = pipe(
         map((item: DataItem) => parseDate(item.date)),
@@ -146,10 +144,6 @@ const App: React.FC = () => {
         selectedMarker &&
           selectedMarker.position.lat === position.lat &&
           selectedMarker.position.lng === position.lng ? (
-          // REMOVE:
-          // <MapInfoWindow key={`info-${markerKey}`} position={position} removable={true}>
-          //   {markerData.content}
-          // </MapInfoWindow>
           <CustomOverlayMap key={`info-${markerKey}`} position={position}>
             {selectedMarker.content}
           </CustomOverlayMap>
@@ -185,7 +179,7 @@ const App: React.FC = () => {
       className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
         }`}
     >
-      <MapContainer isVisible={isRoadviewVisible} >
+      <div className={`${isRoadviewVisible ? 'md:w-[30%] w-full md:h-full h-1/2' : 'w-full h-full'}`} >
         <Map
           center={center}
           className="w-full h-full"
@@ -229,9 +223,11 @@ const App: React.FC = () => {
           {renderMarkers()}
         </Map>
         <RoadviewButton onClick={handleRoadview} isVisible={isRoadviewVisible} />
-      </MapContainer>
+      </div>
       {isRoadviewVisible && roadviewPosition && (
-        <RoadviewContainer isVisible={isRoadviewVisible}>
+        <div
+          className={`${isRoadviewVisible ? 'block' : 'hidden'} md:w-[70%] w-full md:h-full h-1/2 relative`}
+        >
           <Roadview
             position={{ lat: roadviewPosition.getLat(), lng: roadviewPosition.getLng(), radius: 50 }}
             className="w-full h-full"
@@ -247,9 +243,10 @@ const App: React.FC = () => {
           >
             닫기
           </button>
-        </RoadviewContainer>
-      )}
-    </div>
+        </div>
+      )
+      }
+    </div >
   )
 }
 
