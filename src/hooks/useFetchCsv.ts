@@ -7,7 +7,8 @@ export const useFetchCsv = (url: string) => {
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    fetch(url, {
+    const timestamp = new Date().getTime()
+    fetch(`${url}?t=${timestamp}`, {
       method: 'get',
       headers: {
         pragma: 'no-cache',
