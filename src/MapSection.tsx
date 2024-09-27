@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { map, pipe } from 'ramda'
 import {
@@ -42,13 +42,13 @@ export const MapSection: React.FC<MapSectionProps> = ({
   roadviewPosition,
   selectedMarker,
   setSelectedMarker,
-  setIsRoadviewVisible,
+  // setIsRoadviewVisible,
   setRoadviewPosition,
 }) => {
-  const mapRef = useRef<kakao.maps.Map>()
+  const [map, setMap] = useState<kakao.maps.Map | null>(null)
 
   const handleCreateMap = (mapInstance: kakao.maps.Map) => {
-    mapRef.current = mapInstance
+    setMap(mapInstance)
   }
 
   const handleMapClick = (
@@ -67,6 +67,17 @@ export const MapSection: React.FC<MapSectionProps> = ({
       ),
     )
   }
+
+  useEffect(() => {
+    if (!map) return
+    
+    if (isRoadviewVisible) {
+      map.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
+      setRoadviewPosition(map.getCenter())
+    } else {
+      map.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
+    }
+  }, [isRoadviewVisible])
 
   const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
 
