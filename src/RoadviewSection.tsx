@@ -1,11 +1,8 @@
 import React from 'react'
-import {
-  Roadview,
-  RoadviewMarker,
-} from 'react-kakao-maps-sdk'
+import { Roadview, RoadviewMarker } from 'react-kakao-maps-sdk'
 
 interface RoadviewSectionProps {
-  roadviewPosition: kakao.maps.LatLng
+  center: { lat: number; lng: number }
   isRoadviewVisible: boolean
   pan: number
   setPan: React.Dispatch<React.SetStateAction<number>>
@@ -14,7 +11,7 @@ interface RoadviewSectionProps {
 }
 
 export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
-  roadviewPosition,
+  center,
   isRoadviewVisible,
   pan,
   setPan,
@@ -27,11 +24,7 @@ export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
         } md:w-[70%] w-full md:h-full h-1/2 relative`}
     >
       <Roadview
-        position={{
-          lat: roadviewPosition.getLat(),
-          lng: roadviewPosition.getLng(),
-          radius: 50,
-        }}
+        position={{ ...center, radius: 50 }}
         className="w-full h-full"
         pan={pan}
         onViewpointChange={(roadview) =>
@@ -45,10 +38,7 @@ export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
         }
       >
         <RoadviewMarker
-          position={{
-            lat: roadviewPosition.getLat(),
-            lng: roadviewPosition.getLng(),
-          }}
+          position={{ ...center }}
         />
       </Roadview>
       <button

@@ -19,7 +19,6 @@ const App: React.FC = () => {
   const [data, setData] = useState<DataItem[]>([])
   const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
   const [isRoadviewVisible, setIsRoadviewVisible] = useState(false)
-  const [roadviewPosition, setRoadviewPosition] = useState<kakao.maps.LatLng>()
 
   const { rows, error } = useFetchCsv('/analysis.csv')
 
@@ -69,13 +68,11 @@ const App: React.FC = () => {
       >
         <MapSection
           center={center}
+          setCenter={setCenter}
           data={data}
           isRoadviewVisible={isRoadviewVisible}
-          roadviewPosition={roadviewPosition}
           selectedMarker={selectedMarker}
           setSelectedMarker={setSelectedMarker}
-          setIsRoadviewVisible={setIsRoadviewVisible}
-          setRoadviewPosition={setRoadviewPosition}
         />
         <RoadviewButton
           onClick={handleRoadviewToggle}
@@ -84,9 +81,9 @@ const App: React.FC = () => {
       </div>
 
       {/* Roadview Section */}
-      {isRoadviewVisible && roadviewPosition && (
+      {isRoadviewVisible && (
         <RoadviewSection
-          roadviewPosition={roadviewPosition}
+          center={center}
           isRoadviewVisible={isRoadviewVisible}
           pan={pan}
           setPan={setPan}

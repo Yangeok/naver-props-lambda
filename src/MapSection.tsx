@@ -26,24 +26,18 @@ interface MapSectionProps {
   center: { lat: number; lng: number }
   data: DataItem[]
   isRoadviewVisible: boolean
-  roadviewPosition: kakao.maps.LatLng | undefined
   selectedMarker: MarkerData | null
+  setCenter: React.Dispatch<React.SetStateAction<{ lat: number; lng: number }>>
   setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
-  setIsRoadviewVisible: React.Dispatch<React.SetStateAction<boolean>>
-  setRoadviewPosition: React.Dispatch<
-    React.SetStateAction<kakao.maps.LatLng | undefined>
-  >
 }
 
 export const MapSection: React.FC<MapSectionProps> = ({
   center,
   data,
   isRoadviewVisible,
-  roadviewPosition,
   selectedMarker,
+  setCenter,
   setSelectedMarker,
-  // setIsRoadviewVisible,
-  setRoadviewPosition,
 }) => {
   const [map, setMap] = useState<kakao.maps.Map | null>(null)
 
@@ -56,16 +50,14 @@ export const MapSection: React.FC<MapSectionProps> = ({
     mouseEvent: kakao.maps.event.MouseEvent,
   ) => {
     if (selectedMarker) setSelectedMarker(null)
-    if (isRoadviewVisible) setRoadviewPosition(mouseEvent.latLng)
+    if (isRoadviewVisible) setCenter({ lat: mouseEvent.latLng.getLat(), lng: mouseEvent.latLng.getLng() })
   }
 
   const handleDragEnd = (target: kakao.maps.Marker) => {
-    setRoadviewPosition(
-      new kakao.maps.LatLng(
-        target.getPosition().getLat(),
-        target.getPosition().getLng(),
-      ),
-    )
+    setCenter({
+        lat: target.getPosition().getLat(),
+        lng: target.getPosition().getLng(),
+    })
   }
 
   useEffect(() => {
@@ -73,7 +65,10 @@ export const MapSection: React.FC<MapSectionProps> = ({
     
     if (isRoadviewVisible) {
       map.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
-      setRoadviewPosition(map.getCenter())
+      setCenter({
+        lat: map.getCenter().getLat(),
+        lng: map.getCenter().getLng(),
+      })
     } else {
       map.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
     }
@@ -90,13 +85,13 @@ export const MapSection: React.FC<MapSectionProps> = ({
       onClick={handleMapClick}
     >
       {/* Roadview Marker */}
-      {isRoadviewVisible && roadviewPosition && (
+      {isRoadviewVisible && (
         <>
           <MapTypeId type='ROADVIEW' />
           <MapMarker
             position={{
-              lat: roadviewPosition.getLat(),
-              lng: roadviewPosition.getLng(),
+              lat: center.lat,
+              lng: center.lng,
             }}
             image={{
               src:
