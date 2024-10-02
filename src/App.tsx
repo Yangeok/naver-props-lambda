@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useKakaoLoader } from 'react-kakao-maps-sdk'
 
 import { useFetchCsv } from './hooks'
@@ -68,6 +68,7 @@ const App: React.FC = () => {
           }`}
       >
         <MapSection
+          mapRef={mapRef}
           center={center}
           setCenter={setCenter}
           data={data}

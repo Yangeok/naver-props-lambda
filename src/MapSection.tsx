@@ -34,6 +34,7 @@ interface MapSectionProps {
 }
 
 export const MapSection: React.FC<MapSectionProps> = ({
+  mapRef,
   center,
   data,
   isRoadviewVisible,
@@ -60,6 +61,17 @@ export const MapSection: React.FC<MapSectionProps> = ({
         lat: target.getPosition().getLat(),
         lng: target.getPosition().getLng(),
     })
+  }
+
+  const relayout = () => {
+    mapRef.current?.relayout()
+
+    if (mapRef.current) {
+      setCenter({
+        lat: mapRef.current.getCenter().getLat(),
+        lng: mapRef.current.getCenter().getLng(),
+      })
+    }
   }
 
   useEffect(() => {
