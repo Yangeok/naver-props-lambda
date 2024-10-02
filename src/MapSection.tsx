@@ -18,16 +18,18 @@ import {
   DataItem,
   MarkerData,
   getLatestDate,
+  Center,
 } from './utils'
 import { MarkerContent } from './components'
 import './index.css'
 
 interface MapSectionProps {
-  center: { lat: number; lng: number }
+  mapRef: React.RefObject<kakao.maps.Map>
+  center: Center
   data: DataItem[]
   isRoadviewVisible: boolean
   selectedMarker: MarkerData | null
-  setCenter: React.Dispatch<React.SetStateAction<{ lat: number; lng: number }>>
+  setCenter: React.Dispatch<React.SetStateAction<Center>>
   setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
 }
 

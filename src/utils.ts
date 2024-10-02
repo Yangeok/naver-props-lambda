@@ -1,12 +1,14 @@
 import { differenceInDays, startOfDay } from 'date-fns'
 import { ReactNode } from 'react'
 
+export interface Center { 
+  lat: number
+  lng: number
+}
+
 export interface DataItem {
   title: string
-  latlng: {
-    lat: number
-    lng: number
-  }
+  latlng: Center
   amount: number
   approvalYear: string
   link1: string
