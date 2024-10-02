@@ -42,11 +42,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
   setCenter,
   setSelectedMarker,
 }) => {
-  const [map, setMap] = useState<kakao.maps.Map | null>(null)
-
-  const handleCreateMap = (mapInstance: kakao.maps.Map) => {
-    setMap(mapInstance)
-  }
+  const [zoomLevel, setZoomLevel] = useState<number>(8)
 
   const handleMapClick = (
     _map: kakao.maps.Map,
@@ -75,17 +71,16 @@ export const MapSection: React.FC<MapSectionProps> = ({
   }
 
   useEffect(() => {
-    if (!map) return
+    if (!mapRef) return
     
     if (isRoadviewVisible) {
-      map.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
-      setCenter({
-        lat: map.getCenter().getLat(),
-        lng: map.getCenter().getLng(),
-      })
+      mapRef.current?.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
+      setZoomLevel(3)
     } else {
-      map.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
+      mapRef.current?.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
     }
+
+    relayout() 
   }, [isRoadviewVisible])
 
   const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
@@ -94,9 +89,12 @@ export const MapSection: React.FC<MapSectionProps> = ({
     <Map
       center={center}
       className="w-full h-full"
-      level={8}
-      onCreate={handleCreateMap}
+      level={zoomLevel}
+      ref={mapRef}
       onClick={handleMapClick}
+      onZoomChanged={(map) => {
+        setZoomLevel(map.getLevel())
+      }}
     >
       {/* Roadview Marker */}
       {isRoadviewVisible && (
