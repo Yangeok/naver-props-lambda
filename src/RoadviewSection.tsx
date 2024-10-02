@@ -1,12 +1,14 @@
 import React from 'react'
 import { Roadview, RoadviewMarker } from 'react-kakao-maps-sdk'
 
+import { Center } from './utils'
+
 interface RoadviewSectionProps {
-  center: { lat: number; lng: number }
+  center: Center
   isRoadviewVisible: boolean
   pan: number
   setPan: React.Dispatch<React.SetStateAction<number>>
-  setCenter: React.Dispatch<React.SetStateAction<{ lat: number; lng: number }>>
+  setCenter: React.Dispatch<React.SetStateAction<Center>>
   handleRoadviewToggle: () => void
 }
 

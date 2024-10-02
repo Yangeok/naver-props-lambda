@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useKakaoLoader } from 'react-kakao-maps-sdk'
 
 import { useFetchCsv } from './hooks'
-import { DataItem, MarkerData } from './utils'
+import { DataItem, MarkerData, Center } from './utils'
 import { RoadviewButton } from './components'
 import './index.css'
 import { MapSection } from './MapSection'
@@ -14,7 +14,8 @@ const App: React.FC = () => {
     libraries: ['services'],
   })
 
-  const [center, setCenter] = useState({ lat: 37.566535, lng: 126.9779692 })
+  const mapRef = useRef<kakao.maps.Map>(null)
+  const [center, setCenter] = useState<Center>({ lat: 37.566535, lng: 126.9779692 })
   const [pan, setPan] = useState(0)
   const [data, setData] = useState<DataItem[]>([])
   const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
@@ -67,6 +68,7 @@ const App: React.FC = () => {
           }`}
       >
         <MapSection
+          mapRef={mapRef}
           center={center}
           setCenter={setCenter}
           data={data}
@@ -79,6 +81,9 @@ const App: React.FC = () => {
           isVisible={isRoadviewVisible}
         />
       </div>
+
+      {/* Divider */}
+      <div className="w-1 bg-gray-400 cursor-col-resize" />
 
       {/* Roadview Section */}
       {isRoadviewVisible && (
