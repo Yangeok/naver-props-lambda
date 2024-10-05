@@ -12,7 +12,6 @@ export function useThrottle<T>(value: T, limit: number): T {
       }
     }, limit - (Date.now() - lastRan.current))
 
-    // Clean up the timeout if value or limit changes
     return () => {
       clearTimeout(handler)
     }

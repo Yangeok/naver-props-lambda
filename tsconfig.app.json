@@ -25,5 +25,5 @@
       "kakao.maps.d.ts"
     ]
   },
-  "include": ["src"]
+  "include": ["src", "vitest-setup.ts"],
 }
