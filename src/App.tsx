@@ -82,20 +82,20 @@ const App: React.FC = () => {
         />
       </div>
 
-      {/* Divider */}
-      <div className="w-1 bg-gray-400 cursor-col-resize" />
-
       {/* Roadview Section */}
-      {isRoadviewVisible && (
+      <div
+        className={`${isRoadviewVisible ? 'block' : 'hidden'
+          } md:w-[70%] w-full md:h-full h-1/2 relative`}
+      >
         <RoadviewSection
+          mapRef={mapRef}
           center={center}
-          isRoadviewVisible={isRoadviewVisible}
           pan={pan}
           setPan={setPan}
           setCenter={setCenter}
           handleRoadviewToggle={handleRoadviewToggle}
         />
-      )}
+      </div>
     </div>
   )
 }
