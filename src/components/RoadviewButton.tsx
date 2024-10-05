@@ -13,7 +13,7 @@ export const RoadviewButton: React.FC<IRoadviewButton> = ({ isVisible, onClick }
   return (
     <div
       onClick={onClick}
-      className={`absolute top-1 left-1 w-10 h-10 z-10 cursor-pointer bg-no-repeat bg-[url(${sourceImage})] ${isVisible ? enabled : disabled}`}
+      className={`absolute top-1 left-1 w-10 h-10 z-10 cursor-pointer bg-no-repeat bg-[url('${sourceImage}')] ${isVisible ? enabled : disabled}`}
     />
   )
 }

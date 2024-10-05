@@ -53,10 +53,10 @@ export const MapSection: React.FC<MapSectionProps> = ({
   }
 
   const handleDragEnd = (target: kakao.maps.Marker) => {
-    setCenter({
+      setCenter({
         lat: target.getPosition().getLat(),
         lng: target.getPosition().getLng(),
-    })
+      })
   }
 
   const relayout = () => {
@@ -71,17 +71,25 @@ export const MapSection: React.FC<MapSectionProps> = ({
   }
 
   useEffect(() => {
-    if (!mapRef) return
+    if (!mapRef.current) return
+    
+    mapRef.current.relayout()
     
     if (isRoadviewVisible) {
-      mapRef.current?.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
+      mapRef.current.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
+      setCenter({
+        lat: mapRef.current.getCenter().getLat(),
+        lng: mapRef.current.getCenter().getLng(),
+      })
       setZoomLevel(3)
     } else {
-      mapRef.current?.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
+      mapRef.current.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
     }
+  }, [mapRef, isRoadviewVisible])
 
-    relayout() 
-  }, [isRoadviewVisible])
+  useEffect(() => {
+    mapRef.current?.setKeyboardShortcuts(true)
+  }, [])
 
   const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
 
