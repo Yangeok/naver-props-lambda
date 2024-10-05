@@ -20,6 +20,10 @@ export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
   setCenter,
   handleRoadviewToggle,
 }) => {
+  if (!mapRef.current) {
+    return
+  }
+
   return (
     <div
       className={`${isRoadviewVisible ? 'block' : 'hidden'
