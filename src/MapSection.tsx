@@ -80,8 +80,9 @@ export const MapSection: React.FC<MapSectionProps> = ({
       mapRef.current?.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
     }
 
-    relayout() 
-  }, [isRoadviewVisible])
+  useEffect(() => {
+    mapRef.current?.setKeyboardShortcuts(true)
+  }, [])
 
   const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
 
