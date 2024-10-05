@@ -59,6 +59,17 @@ export const MapSection: React.FC<MapSectionProps> = ({
       })
   }
 
+  const relayout = () => {
+    mapRef.current?.relayout()
+
+    if (mapRef.current) {
+      setCenter({
+        lat: mapRef.current.getCenter().getLat(),
+        lng: mapRef.current.getCenter().getLng(),
+      })
+    }
+  }
+
   useEffect(() => {
     if (!mapRef.current) return
     

@@ -82,6 +82,9 @@ const App: React.FC = () => {
         />
       </div>
 
+      {/* Divider */}
+      <div className="w-1 bg-gray-400 cursor-col-resize" />
+
       {/* Roadview Section */}
       <div
         className={`${isRoadviewVisible ? 'block' : 'hidden'
