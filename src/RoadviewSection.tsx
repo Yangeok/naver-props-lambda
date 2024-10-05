@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Roadview, RoadviewMarker } from 'react-kakao-maps-sdk'
 
 import { Center } from './utils'
 
 interface RoadviewSectionProps {
+  mapRef: React.RefObject<kakao.maps.Map>
   center: Center
-  isRoadviewVisible: boolean
   pan: number
   setPan: React.Dispatch<React.SetStateAction<number>>
   setCenter: React.Dispatch<React.SetStateAction<Center>>
@@ -13,8 +13,8 @@ interface RoadviewSectionProps {
 }
 
 export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
+  mapRef,
   center,
-  isRoadviewVisible,
   pan,
   setPan,
   setCenter,
@@ -25,23 +25,20 @@ export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
   }
 
   return (
-    <div
-      className={`${isRoadviewVisible ? 'block' : 'hidden'
-        } md:w-[70%] w-full md:h-full h-1/2 relative`}
-    >
+    <>
       <Roadview
         position={{ ...center, radius: 50 }}
         className="w-full h-full"
         pan={pan}
-        onViewpointChange={(roadview) =>
+        onViewpointChange={(roadview) => {
           setPan(roadview.getViewpoint().pan)
-        }
-        onPositionChanged={(roadview) =>
+        }}
+        onPositionChanged={(roadview) => {
           setCenter({
             lat: roadview.getPosition().getLat(),
             lng: roadview.getPosition().getLng(),
           })
-        }
+        }}
       >
         <RoadviewMarker
           position={{ ...center }}
@@ -53,6 +50,6 @@ export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
       >
         닫기
       </button>
-    </div>
+    </>
   )
 }
