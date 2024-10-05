@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Roadview, RoadviewMarker } from 'react-kakao-maps-sdk'
 
 import { Center } from './utils'
