@@ -49,9 +49,9 @@ export const checkDateRange = (date: Date): DateRange => {
   const today = startOfDay(new Date())
   const diffDays = differenceInDays(today, startOfDay(date))
 
-  if (diffDays === 0 || diffDays === -1) {
+  if (diffDays <= 1) {
     return DateRange.YESTERDAY
-  } else if (diffDays <= 7 && diffDays > 0) {
+  } else if (diffDays <= 7 && diffDays > 2) {
     return DateRange.LAST_WEEK
   } else if (diffDays <= 14 && diffDays > 7) {
     return DateRange.TWO_WEEKS_AGO
