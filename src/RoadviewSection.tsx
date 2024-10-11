@@ -40,9 +40,7 @@ export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
           })
         }}
       >
-        <RoadviewMarker
-          position={{ ...center }}
-        />
+        <RoadviewMarker position={center} />
       </Roadview>
       <button
         onClick={handleRoadviewToggle}
