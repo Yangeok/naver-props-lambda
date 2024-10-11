@@ -6,8 +6,8 @@ import {
   MapTypeId,
   MapMarker,
   MapTypeControl,
-  ZoomControl,
   CustomOverlayMap,
+  ZoomControl,
 } from 'react-kakao-maps-sdk'
 
 import {
@@ -19,9 +19,11 @@ import {
   MarkerData,
   getLatestDate,
   Center,
+  // MapTypeIdEnum,
 } from './utils'
 import { MarkerContent } from './components'
 import './index.css'
+import './MapWalker.css'
 
 interface MapSectionProps {
   mapRef: React.RefObject<kakao.maps.Map>
@@ -29,6 +31,7 @@ interface MapSectionProps {
   data: DataItem[]
   isRoadviewVisible: boolean
   selectedMarker: MarkerData | null
+  pan: number
   setCenter: React.Dispatch<React.SetStateAction<Center>>
   setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
 }
@@ -39,10 +42,12 @@ export const MapSection: React.FC<MapSectionProps> = ({
   data,
   isRoadviewVisible,
   selectedMarker,
+  pan,
   setCenter,
   setSelectedMarker,
 }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(8)
+  // const [mapTypeIds, setMapTypeIds] = useState<MapTypeIdEnum[]>([])
 
   const handleMapClick = (
     _map: kakao.maps.Map,
@@ -53,17 +58,27 @@ export const MapSection: React.FC<MapSectionProps> = ({
   }
 
   const handleDragEnd = (target: kakao.maps.Marker) => {
-      setCenter({
-        lat: target.getPosition().getLat(),
-        lng: target.getPosition().getLng(),
-      })
+    setCenter({
+      lat: target.getPosition().getLat(),
+      lng: target.getPosition().getLng(),
+    })
+  }
+
+  const getAngleClassName = (angle: number) => {
+    const threshold = 22.5
+
+    const index = Array.from({ length: 16 })
+      .map((_, i) => i)
+      .filter(i => angle > threshold * i && angle < threshold * (i + 1))[0]
+
+    return index !== undefined ? "m" + index : ""
   }
 
   useEffect(() => {
     if (!mapRef.current) return
-    
+
     mapRef.current.relayout()
-    
+
     if (isRoadviewVisible) {
       mapRef.current.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
       setCenter({
@@ -96,8 +111,18 @@ export const MapSection: React.FC<MapSectionProps> = ({
       {/* Roadview Marker */}
       {isRoadviewVisible && (
         <>
-          <MapTypeId type='ROADVIEW' />
-          <MapMarker
+          <MapTypeId type="ROADVIEW" />
+          <CustomOverlayMap
+            position={center}
+            yAnchor={1}
+            
+          >
+            <div className={`MapWalker ${getAngleClassName(pan)}`}>
+              <div className={`angleBack`}></div>
+              <div className={"figure"}></div>
+            </div>
+          </CustomOverlayMap>
+          {/* <MapMarker
             position={{
               lat: center.lat,
               lng: center.lng,
@@ -126,7 +151,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
             }}
             draggable={true}
             onDragEnd={handleDragEnd}
-          />
+          /> */}
         </>
       )}
       {/* Map Controls */}

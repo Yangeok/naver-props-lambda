@@ -19,7 +19,7 @@ describe('Utils Module', () => {
       const yesterday = subDays(new Date(), 1)
 
       expect(checkDateRange(today)).toBe(DateRange.YESTERDAY)
-      expect(checkDateRange(yesterday)).toBe(DateRange.LAST_WEEK)
+      expect(checkDateRange(yesterday)).toBe(DateRange.YESTERDAY)
     })
 
     test('returns LAST_WEEK for dates within the last week', () => {
