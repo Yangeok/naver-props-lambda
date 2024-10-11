@@ -75,6 +75,7 @@ const App: React.FC = () => {
           isRoadviewVisible={isRoadviewVisible}
           selectedMarker={selectedMarker}
           setSelectedMarker={setSelectedMarker}
+          pan={pan}
         />
         <RoadviewButton
           onClick={handleRoadviewToggle}
