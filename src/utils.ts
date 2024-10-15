@@ -1,6 +1,15 @@
 import { differenceInDays, startOfDay } from 'date-fns'
 import { ReactNode } from 'react'
 
+export enum MapTypeIdEnum {
+  HYBRID = "HYBRID", // 스카이뷰 + 레이블
+  ROADVIEW = "ROADVIEW", // 로드뷰
+  TRAFFIC = "TRAFFIC", // 교통정보
+  TERRAIN = "TERRAIN", // 지형도
+  BICYCLE = "BICYCLE", // 자전거
+  USE_DISTRICT = "USE_DISTRICT", // 지적편집도
+}
+
 export interface Center { 
   lat: number
   lng: number
