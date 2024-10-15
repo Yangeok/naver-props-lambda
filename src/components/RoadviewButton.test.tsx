@@ -22,7 +22,9 @@ describe('RoadviewButton', () => {
 
     const button = screen.getByRole('button')
 
-    expect(button).toHaveClass('bg-[0_-350px]')
+    expect(button).toHaveStyle({
+      backgroundPosition: '0 -350px',
+    })
   })
 
   test('renders correctly with hidden state', () => {
@@ -32,6 +34,8 @@ describe('RoadviewButton', () => {
 
     const button = screen.getByRole('button')
 
-    expect(button).toHaveClass('bg-[0_-450px]')
+    expect(button).toHaveStyle({
+      backgroundPosition: '0 -450px',
+    })
   })
 })

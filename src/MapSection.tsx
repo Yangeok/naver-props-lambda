@@ -19,9 +19,9 @@ import {
   MarkerData,
   getLatestDate,
   Center,
-  // MapTypeIdEnum,
+  MapTypeIdEnum,
 } from './utils'
-import { MarkerContent } from './components'
+import { MarkerContent, MapMenu } from './components'
 import './index.css'
 import './MapWalker.css'
 
@@ -47,7 +47,11 @@ export const MapSection: React.FC<MapSectionProps> = ({
   setSelectedMarker,
 }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(8)
-  // const [mapTypeIds, setMapTypeIds] = useState<MapTypeIdEnum[]>([])
+  const [mapTypeIds, setMapTypeIds] = useState<MapTypeIdEnum[] | []>([])
+
+  const handleSetMapTypeIds = (type: MapTypeIdEnum[] | ((prev: MapTypeIdEnum[]) => MapTypeIdEnum[])) => {
+    setMapTypeIds(type instanceof Function ? type(mapTypeIds) : type)
+  }
 
   const handleMapClick = (
     _map: kakao.maps.Map,
@@ -55,13 +59,6 @@ export const MapSection: React.FC<MapSectionProps> = ({
   ) => {
     if (selectedMarker) setSelectedMarker(null)
     if (isRoadviewVisible) setCenter({ lat: mouseEvent.latLng.getLat(), lng: mouseEvent.latLng.getLng() })
-  }
-
-  const handleDragEnd = (target: kakao.maps.Marker) => {
-    setCenter({
-      lat: target.getPosition().getLat(),
-      lng: target.getPosition().getLng(),
-    })
   }
 
   const getAngleClassName = (angle: number) => {
@@ -115,54 +112,31 @@ export const MapSection: React.FC<MapSectionProps> = ({
           <CustomOverlayMap
             position={center}
             yAnchor={1}
-            
+
           >
             <div className={`MapWalker ${getAngleClassName(pan)}`}>
               <div className={`angleBack`}></div>
               <div className={"figure"}></div>
             </div>
           </CustomOverlayMap>
-          {/* <MapMarker
-            position={{
-              lat: center.lat,
-              lng: center.lng,
-            }}
-            image={{
-              src:
-                'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png',
-              size: {
-                width: 26,
-                height: 46,
-              },
-              options: {
-                spriteSize: {
-                  width: 1666,
-                  height: 168,
-                },
-                spriteOrigin: {
-                  x: 705,
-                  y: 114,
-                },
-                offset: {
-                  x: 13,
-                  y: 46,
-                },
-              },
-            }}
-            draggable={true}
-            onDragEnd={handleDragEnd}
-          /> */}
         </>
       )}
+
       {/* Map Controls */}
+      <MapMenu setMapTypeIds={handleSetMapTypeIds} mapTypeIds={mapTypeIds} />
       <MapTypeControl position="TOPRIGHT" />
       <ZoomControl position="RIGHT" />
+
+      {/* Map Types */}
+      {mapTypeIds && mapTypeIds.map(mapTypeId => <MapTypeId type={mapTypeId} key={mapTypeId} />)}
+
       {/* Render Markers */}
       {markers}
     </Map>
   )
 }
 
+//#region 
 const generateMarkers = (
   data: DataItem[],
   selectedMarker: MarkerData | null,
@@ -276,3 +250,4 @@ const createInfoWindow = (
     </CustomOverlayMap>
   ) : null
 }
+//#endregion
