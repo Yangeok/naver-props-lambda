@@ -1,46 +1,16 @@
+import { startOfDay, subDays } from 'date-fns'
 import { describe, test, expect } from 'vitest'
 import {
-  checkDateRange,
-  DateRange,
   parseDate,
-  getLatestDateRange,
   getLatestDate,
   groupBy,
   filterGroupedItems,
   filterOutGroupedItems,
-  getMarkerImageSrc,
+  getRgbCode,
+  utf8ToBase64,
 } from './utils'
-import { subDays } from 'date-fns'
 
 describe('Utils Module', () => {
-  describe('checkDateRange', () => {
-    test('returns YESTERDAY for today or yesterday', () => {
-      const today = new Date()
-      const yesterday = subDays(new Date(), 1)
-
-      expect(checkDateRange(today)).toBe(DateRange.YESTERDAY)
-      expect(checkDateRange(yesterday)).toBe(DateRange.YESTERDAY)
-    })
-
-    test('returns LAST_WEEK for dates within the last week', () => {
-      const date = new Date()
-      date.setDate(date.getDate() - 5)
-      expect(checkDateRange(date)).toBe(DateRange.LAST_WEEK)
-    })
-
-    test('returns TWO_WEEKS_AGO for dates between 8 and 14 days ago', () => {
-      const date = new Date()
-      date.setDate(date.getDate() - 10)
-      expect(checkDateRange(date)).toBe(DateRange.TWO_WEEKS_AGO)
-    })
-
-    test('returns OUT_OF_RANGE for dates older than two weeks', () => {
-      const date = new Date()
-      date.setDate(date.getDate() - 20)
-      expect(checkDateRange(date)).toBe(DateRange.OUT_OF_RANGE)
-    })
-  })
-
   describe('parseDate', () => {
     test('parses date string in "YY.MM.DD" format correctly', () => {
       const dateStr = '21.12.31'
@@ -56,23 +26,6 @@ describe('Utils Module', () => {
     test('returns Unix epoch for null input', () => {
       const parsedDate = parseDate(null as any)
       expect(parsedDate.getTime()).toBe(0)
-    })
-  })
-
-  describe('getLatestDateRange', () => {
-    test('returns the most recent DateRange from an array', () => {
-      const dateRanges = [
-        DateRange.OUT_OF_RANGE,
-        DateRange.TWO_WEEKS_AGO,
-        DateRange.LAST_WEEK,
-        DateRange.YESTERDAY,
-      ]
-      expect(getLatestDateRange(dateRanges)).toBe(DateRange.YESTERDAY)
-    })
-
-    test('handles arrays with only OUT_OF_RANGE', () => {
-      const dateRanges = [DateRange.OUT_OF_RANGE, DateRange.OUT_OF_RANGE]
-      expect(getLatestDateRange(dateRanges)).toBe(DateRange.OUT_OF_RANGE)
     })
   })
 
@@ -158,16 +111,55 @@ describe('Utils Module', () => {
     })
   })
 
-  describe('getMarkerImageSrc', () => {
-    test('returns correct image path for each DateRange', () => {
-      expect(getMarkerImageSrc(DateRange.YESTERDAY)).toBe('/markers/blue.png')
-      expect(getMarkerImageSrc(DateRange.LAST_WEEK)).toBe('/markers/green.png')
-      expect(getMarkerImageSrc(DateRange.TWO_WEEKS_AGO)).toBe('/markers/red.png')
-      expect(getMarkerImageSrc(DateRange.OUT_OF_RANGE)).toBe('/markers/black.png')
+  describe('getRgbCode', () => {
+    test('should return #1E90FF for today', () => {
+      const today = startOfDay(new Date())
+      expect(getRgbCode(today)).toBe('#1E90FF')
+    })
+  
+    test('should return #00BFFF for yesterday', () => {
+      const yesterday = startOfDay(subDays(new Date(), 1))
+      expect(getRgbCode(yesterday)).toBe('#00BFFF')
+    })
+  
+    test('should return #00FF7F for 2 days ago', () => {
+      const twoDaysAgo = startOfDay(subDays(new Date(), 2))
+      expect(getRgbCode(twoDaysAgo)).toBe('#00FF7F')
+    })
+  
+    test('should return #32CD32 for 5 days ago', () => {
+      const fiveDaysAgo = startOfDay(subDays(new Date(), 5))
+      expect(getRgbCode(fiveDaysAgo)).toBe('#32CD32')
+    })
+  
+    test('should return #ADFF2F for 10 days ago', () => {
+      const tenDaysAgo = startOfDay(subDays(new Date(), 10))
+      expect(getRgbCode(tenDaysAgo)).toBe('#ADFF2F')
+    })
+  
+    test('should return #FFD700 for more than 14 days ago', () => {
+      const fifteenDaysAgo = startOfDay(subDays(new Date(), 15))
+      expect(getRgbCode(fifteenDaysAgo)).toBe('#FFD700')
+    })
+  })
+
+  describe('utf8ToBase64', () => {
+    test('should convert a UTF-8 string to a base64 encoded string', () => {
+      const input = 'Hello, World!'
+      const expectedOutput = 'SGVsbG8sIFdvcmxkIQ=='
+      expect(utf8ToBase64(input)).toBe(expectedOutput)
     })
 
-    test('returns default image path for invalid DateRange', () => {
-      expect(getMarkerImageSrc('INVALID' as DateRange)).toBe('/markers/black.png')
+    test('should handle empty strings', () => {
+      const input = ''
+      const expectedOutput = ''
+      expect(utf8ToBase64(input)).toBe(expectedOutput)
+    })
+
+    test('should handle special characters', () => {
+      const input = '안녕하세요'
+      const expectedOutput = '7JWI64WV7ZWY7IS47JqU'
+      expect(utf8ToBase64(input)).toBe(expectedOutput)
     })
   })
 })
