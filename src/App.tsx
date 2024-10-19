@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
+import SplitPane, { Pane } from 'split-pane-react'
+import 'split-pane-react/esm/themes/default.css'
 import { useKakaoLoader } from 'react-kakao-maps-sdk'
 
 import { useFetchCsv } from './hooks'
@@ -14,6 +16,8 @@ const App: React.FC = () => {
     libraries: ['services'],
   })
 
+  const [sizes, setSizes] = useState<any[]>(['100%', '0'])
+  const [split, setSplit] = useState<'vertical' | 'horizontal'>('vertical')
   const mapRef = useRef<kakao.maps.Map>(null)
   const [center, setCenter] = useState<Center>({ lat: 37.566535, lng: 126.9779692 })
   const [pan, setPan] = useState(0)
@@ -22,6 +26,10 @@ const App: React.FC = () => {
   const [isRoadviewVisible, setIsRoadviewVisible] = useState(false)
 
   const { rows, error } = useFetchCsv('/analysis.csv')
+
+  const handleRoadviewToggle = () => {
+    setIsRoadviewVisible(!isRoadviewVisible)
+  }
 
   useEffect(() => {
     if (error) console.error('Error loading CSV file:', error)
@@ -51,55 +59,80 @@ const App: React.FC = () => {
     }
   }, [])
 
-  const handleRoadviewToggle = () => {
-    setIsRoadviewVisible(!isRoadviewVisible)
-  }
+  useEffect(() => {
+    const updateSplit = () => {
+      if (window.innerWidth < 768) {
+        setSplit('horizontal')
+      } else {
+        setSplit('vertical')
+      }
+    }
+  
+    updateSplit()
+    window.addEventListener('resize', updateSplit)
+  
+    return () => {
+      window.removeEventListener('resize', updateSplit)
+    }
+  }, [])
+
+  useEffect(() => {
+    mapRef.current?.setKeyboardShortcuts(true)
+  }, [])
 
   return (
     <div
       className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
         }`}
     >
-      {/* Map Section */}
-      <div
-        className={`${isRoadviewVisible
-          ? 'md:w-[30%] w-full md:h-full h-1/2'
-          : 'w-full h-full'
-          }`}
+      <SplitPane
+        split={split}
+        sizes={sizes}
+        onChange={setSizes}
+        sashRender={() => (<></>)}
       >
-        <MapSection
-          mapRef={mapRef}
-          center={center}
-          setCenter={setCenter}
-          data={data}
-          isRoadviewVisible={isRoadviewVisible}
-          selectedMarker={selectedMarker}
-          setSelectedMarker={setSelectedMarker}
-          pan={pan}
-        />
-        <RoadviewButton
-          onClick={handleRoadviewToggle}
-          isVisible={isRoadviewVisible}
-        />
-      </div>
+        {/* Map Section */}
+        <Pane
+          minSize={50}
+          maxSize={"100%"}
+          className={`${isRoadviewVisible
+            ? 'md:w-[30%] w-full md:h-full h-1/2'
+            : 'w-full h-full'
+            }`}
+        >
+          <MapSection
+            mapRef={mapRef}
+            center={center}
+            setCenter={setCenter}
+            sizes={sizes}
+            setSizes={setSizes}
+            data={data}
+            isRoadviewVisible={isRoadviewVisible}
+            selectedMarker={selectedMarker}
+            setSelectedMarker={setSelectedMarker}
+            pan={pan}
+          />
+          <RoadviewButton
+            onClick={handleRoadviewToggle}
+            isVisible={isRoadviewVisible}
+          />
+        </Pane>
 
-      {/* Divider */}
-      <div className="w-1 bg-gray-400 cursor-col-resize" />
-
-      {/* Roadview Section */}
-      <div
-        className={`${isRoadviewVisible ? 'block' : 'hidden'
-          } md:w-[70%] w-full md:h-full h-1/2 relative`}
-      >
-        <RoadviewSection
-          mapRef={mapRef}
-          center={center}
-          pan={pan}
-          setPan={setPan}
-          setCenter={setCenter}
-          handleRoadviewToggle={handleRoadviewToggle}
-        />
-      </div>
+        {/* Roadview Section */}
+        <Pane
+          className={`${isRoadviewVisible ? 'block' : 'hidden'
+            } md:w-[70%] w-full md:h-full h-1/2 relative`}
+        >
+          <RoadviewSection
+            mapRef={mapRef}
+            center={center}
+            pan={pan}
+            setPan={setPan}
+            setCenter={setCenter}
+            handleRoadviewToggle={handleRoadviewToggle}
+          />
+        </Pane>
+      </SplitPane>
     </div>
   )
 }

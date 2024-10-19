@@ -32,6 +32,8 @@ interface MapSectionProps {
   isRoadviewVisible: boolean
   selectedMarker: MarkerData | null
   pan: number
+  sizes: any[]
+  setSizes: React.Dispatch<React.SetStateAction<any[]>>
   setCenter: React.Dispatch<React.SetStateAction<Center>>
   setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
 }
@@ -43,6 +45,8 @@ export const MapSection: React.FC<MapSectionProps> = ({
   isRoadviewVisible,
   selectedMarker,
   pan,
+  sizes,
+  setSizes,
   setCenter,
   setSelectedMarker,
 }) => {
@@ -71,11 +75,11 @@ export const MapSection: React.FC<MapSectionProps> = ({
     return index !== undefined ? "m" + index : ""
   }
 
+  const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
+
   useEffect(() => {
     if (!mapRef.current) return
-
-    mapRef.current.relayout()
-
+    
     if (isRoadviewVisible) {
       mapRef.current.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
       setCenter({
@@ -83,16 +87,20 @@ export const MapSection: React.FC<MapSectionProps> = ({
         lng: mapRef.current.getCenter().getLng(),
       })
       setZoomLevel(3)
+      setSizes(['50%', 'auto'])
     } else {
       mapRef.current.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
+      setSizes(['100%', '0'])
     }
+    
+    mapRef.current.relayout()
   }, [mapRef, isRoadviewVisible])
 
   useEffect(() => {
-    mapRef.current?.setKeyboardShortcuts(true)
-  }, [])
-
-  const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
+    if (!mapRef.current) return
+  
+    mapRef.current.relayout()
+  }, [sizes])
 
   return (
     <Map
