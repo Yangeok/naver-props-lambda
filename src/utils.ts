@@ -44,29 +44,7 @@ export interface MarkerData {
   }
   title: string
   content: ReactNode
-  dateRange: DateRange
-}
-
-export enum DateRange {
-  YESTERDAY = 'YESTERDAY',
-  LAST_WEEK = 'LAST_WEEK',
-  TWO_WEEKS_AGO = 'TWO_WEEKS_AGO',
-  OUT_OF_RANGE = 'OUT_OF_RANGE'
-}
-
-export const checkDateRange = (date: Date): DateRange => {
-  const today = startOfDay(new Date())
-  const diffDays = differenceInDays(today, startOfDay(date))
-
-  if (diffDays <= 1) {
-    return DateRange.YESTERDAY
-  } else if (diffDays <= 7 && diffDays > 2) {
-    return DateRange.LAST_WEEK
-  } else if (diffDays <= 14 && diffDays > 7) {
-    return DateRange.TWO_WEEKS_AGO
-  } else {
-    return DateRange.OUT_OF_RANGE
-  }
+  latestDate: Date
 }
 
 export const groupBy = <T, K extends keyof any>(array: T[], getKey: (item: T) => K) => {
@@ -88,15 +66,6 @@ export const parseDate = (str: string) => {
   return new Date(`20${year}-${month}-${day}`)
 }
 
-export const getLatestDateRange = (dateRanges: DateRange[]): DateRange => {
-  return dateRanges.reduce((prev, curr) => {
-    if (curr === DateRange.YESTERDAY) return curr
-    if (curr === DateRange.LAST_WEEK && prev !== DateRange.YESTERDAY) return curr
-    if (curr === DateRange.TWO_WEEKS_AGO && prev === DateRange.OUT_OF_RANGE) return curr
-    return prev
-  }, DateRange.OUT_OF_RANGE)
-}
-
 export const getLatestDate = (dates: Date[]): Date => {
   return dates.reduce((latest, current) => (current > latest ? current : latest))
 }
@@ -111,15 +80,44 @@ export const filterOutGroupedItems = <T>(groupedItems: Record<string, T[]>): T[]
     .flat()
 }
 
-export const getMarkerImageSrc = (dateRange: DateRange) => {
-  switch (dateRange) {
-    case DateRange.YESTERDAY:
-      return '/markers/blue.png'
-    case DateRange.LAST_WEEK:
-      return '/markers/green.png'
-    case DateRange.TWO_WEEKS_AGO:
-      return '/markers/red.png'
-    default:
-      return '/markers/black.png'
+export const getRgbCode = (latestDate: Date): string => {
+  const today = startOfDay(new Date())
+  const diffDays = differenceInDays(today, startOfDay(latestDate))
+
+  if (diffDays === 0) {
+    return '#1E90FF'
+  } else if (diffDays === 1) {
+    return '#00BFFF'
+  } else if (diffDays <= 3) {
+    return '#00FF7F'
+  } else if (diffDays <= 7) {
+    return '#32CD32'
+  } else if (diffDays <= 14) {
+    return '#ADFF2F'
+  } else {
+    return '#FFD700'
   }
+}
+
+export const getMarkerImageSrc = (latestDate: Date) => {
+  const svg = `
+    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="100%" stop-color="${getRgbCode(latestDate)}" stop-opacity="1" />
+          <stop offset="0%" stop-color="#000000FF" stop-opacity="1" />
+        </linearGradient>
+      </defs>
+      <path d="M12 0C7 0 3 4 3 9C3 16 12 24 12 24C12 24 21 16 21 9C21 4 17 0 12 0Z" fill="url(#grad)" />
+      <circle cx="12" cy="9" r="3" fill="#FFFFFF" />
+    </svg>
+  `
+  return `data:image/svg+xml;base64,${utf8ToBase64(svg)}`
+}
+
+export const utf8ToBase64 = (str: string): string => {
+  const bytes = new TextEncoder().encode(str)
+  const binary = String.fromCharCode(...bytes)
+
+  return btoa(binary)
 }

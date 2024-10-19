@@ -12,7 +12,6 @@ import {
 
 import {
   parseDate,
-  checkDateRange,
   getMarkerImageSrc,
   groupBy,
   DataItem,
@@ -32,6 +31,8 @@ interface MapSectionProps {
   isRoadviewVisible: boolean
   selectedMarker: MarkerData | null
   pan: number
+  sizes: any[]
+  setSizes: React.Dispatch<React.SetStateAction<any[]>>
   setCenter: React.Dispatch<React.SetStateAction<Center>>
   setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
 }
@@ -43,6 +44,8 @@ export const MapSection: React.FC<MapSectionProps> = ({
   isRoadviewVisible,
   selectedMarker,
   pan,
+  sizes,
+  setSizes,
   setCenter,
   setSelectedMarker,
 }) => {
@@ -71,11 +74,11 @@ export const MapSection: React.FC<MapSectionProps> = ({
     return index !== undefined ? "m" + index : ""
   }
 
+  const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
+
   useEffect(() => {
     if (!mapRef.current) return
-
-    mapRef.current.relayout()
-
+    
     if (isRoadviewVisible) {
       mapRef.current.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
       setCenter({
@@ -83,16 +86,20 @@ export const MapSection: React.FC<MapSectionProps> = ({
         lng: mapRef.current.getCenter().getLng(),
       })
       setZoomLevel(3)
+      setSizes(['50%', 'auto'])
     } else {
       mapRef.current.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
+      setSizes(['100%', '0'])
     }
+    
+    mapRef.current.relayout()
   }, [mapRef, isRoadviewVisible])
 
   useEffect(() => {
-    mapRef.current?.setKeyboardShortcuts(true)
-  }, [])
-
-  const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
+    if (!mapRef.current) return
+  
+    mapRef.current.relayout()
+  }, [sizes])
 
   return (
     <Map
@@ -142,9 +149,10 @@ const generateMarkers = (
   selectedMarker: MarkerData | null,
   setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>,
 ) => {
-  const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`),)
+  const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`))
 
   return groupedData
+    .map((group) => group.sort((a, b) => parseDate(b.date).getTime() - parseDate(a.date).getTime()))
     .map((group) => {
       const markerData = createMarkerData(group)
       const markerKey = getMarkerKey(group)
@@ -166,7 +174,7 @@ const createMarkerData = (group: DataItem[]): MarkerData => {
   const position = group[0].latlng
   const isGroup = group.length > 1
 
-  const dateRange = calculateDateRange(group)
+  const latestDate = calculateLatestDate(group)
   const firstDate = formatFirstDate(group)
 
   const content = isGroup
@@ -187,15 +195,14 @@ const createMarkerData = (group: DataItem[]): MarkerData => {
     position,
     title: group[0].title,
     content,
-    dateRange,
+    latestDate,
   }
 }
 
-const calculateDateRange = (group: DataItem[]) => {
+const calculateLatestDate = (group: DataItem[]) => {
   return pipe(
     map((item: DataItem) => parseDate(item.date)),
     getLatestDate,
-    checkDateRange,
   )(group)
 }
 
@@ -226,7 +233,7 @@ const createMapMarker = (
       title={markerData.title}
       clickable={true}
       image={{
-        src: getMarkerImageSrc(markerData.dateRange),
+        src: getMarkerImageSrc(markerData.latestDate),
         size: { width: 24, height: 24 },
       }}
       onClick={() => setSelectedMarker(markerData)}
