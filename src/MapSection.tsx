@@ -12,7 +12,6 @@ import {
 
 import {
   parseDate,
-  checkDateRange,
   getMarkerImageSrc,
   groupBy,
   DataItem,
@@ -150,9 +149,10 @@ const generateMarkers = (
   selectedMarker: MarkerData | null,
   setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>,
 ) => {
-  const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`),)
+  const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`))
 
   return groupedData
+    .map((group) => group.sort((a, b) => parseDate(b.date).getTime() - parseDate(a.date).getTime()))
     .map((group) => {
       const markerData = createMarkerData(group)
       const markerKey = getMarkerKey(group)
@@ -174,7 +174,7 @@ const createMarkerData = (group: DataItem[]): MarkerData => {
   const position = group[0].latlng
   const isGroup = group.length > 1
 
-  const dateRange = calculateDateRange(group)
+  const latestDate = calculateLatestDate(group)
   const firstDate = formatFirstDate(group)
 
   const content = isGroup
@@ -195,15 +195,14 @@ const createMarkerData = (group: DataItem[]): MarkerData => {
     position,
     title: group[0].title,
     content,
-    dateRange,
+    latestDate,
   }
 }
 
-const calculateDateRange = (group: DataItem[]) => {
+const calculateLatestDate = (group: DataItem[]) => {
   return pipe(
     map((item: DataItem) => parseDate(item.date)),
     getLatestDate,
-    checkDateRange,
   )(group)
 }
 
@@ -234,7 +233,7 @@ const createMapMarker = (
       title={markerData.title}
       clickable={true}
       image={{
-        src: getMarkerImageSrc(markerData.dateRange),
+        src: getMarkerImageSrc(markerData.latestDate),
         size: { width: 24, height: 24 },
       }}
       onClick={() => setSelectedMarker(markerData)}
