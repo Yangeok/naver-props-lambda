@@ -5,7 +5,7 @@ import { useKakaoLoader } from 'react-kakao-maps-sdk'
 
 import { useFetchCsv } from './hooks'
 import { DataItem, MarkerData, Center } from './utils'
-import { RoadviewButton } from './components'
+import { RoadviewButton, PaneSash } from './components'
 import './index.css'
 import { MapSection } from './MapSection'
 import { RoadviewSection } from './RoadviewSection'
@@ -31,6 +31,7 @@ const App: React.FC = () => {
     setIsRoadviewVisible(!isRoadviewVisible)
   }
 
+  //#region `useEffect`
   useEffect(() => {
     if (error) console.error('Error loading CSV file:', error)
   }, [error])
@@ -79,6 +80,7 @@ const App: React.FC = () => {
   useEffect(() => {
     mapRef.current?.setKeyboardShortcuts(true)
   }, [])
+  //#endregion
 
   return (
     <div
@@ -89,7 +91,7 @@ const App: React.FC = () => {
         split={split}
         sizes={sizes}
         onChange={setSizes}
-        sashRender={() => (<></>)}
+        sashRender={() => <PaneSash split={split} />}
       >
         {/* Map Section */}
         <Pane
@@ -139,6 +141,7 @@ const App: React.FC = () => {
 
 export default App
 
+//#region
 const mapRowToDataItem = (row: string[]): DataItem => {
   return {
     title: row[3],
@@ -165,3 +168,4 @@ const mapRowToDataItem = (row: string[]): DataItem => {
     date: row[2],
   }
 }
+//#endregion
