@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useKakaoLoader } from 'react-kakao-maps-sdk'
 import SplitPane, { Pane } from 'split-pane-react'
 import 'split-pane-react/esm/themes/default.css'
-import { useKakaoLoader } from 'react-kakao-maps-sdk'
 
+import { PaneSash, RoadviewButton } from './components'
 import { useFetchCsv } from './hooks'
-import { DataItem, MarkerData, Center } from './utils'
-import { RoadviewButton, PaneSash } from './components'
 import './index.css'
 import { MapSection } from './MapSection'
 import { RoadviewSection } from './RoadviewSection'
+import { Center, DataItem, MarkerData } from './utils'
 
 const App: React.FC = () => {
   useKakaoLoader({
@@ -68,10 +68,10 @@ const App: React.FC = () => {
         setSplit('vertical')
       }
     }
-  
+
     updateSplit()
     window.addEventListener('resize', updateSplit)
-  
+
     return () => {
       window.removeEventListener('resize', updateSplit)
     }
@@ -152,7 +152,8 @@ const mapRowToDataItem = (row: string[]): DataItem => {
     amount: Number(row[4]) / 1e4,
     approvalYear: row[5],
     link1: row[20],
-    link2: row[21],
+    link2: row[22],
+    address: row[21],
     area: row[13],
     size: row[10],
     householdCount: Number(row[6]),

@@ -19,6 +19,7 @@ interface IMarkerContent {
   additionalInfo: string
   date: string
   direction: string
+  address: string
   firstDate?: string
 }
 
@@ -28,6 +29,7 @@ export const MarkerContent: React.FC<IMarkerContent> = ({
   approvalYear,
   link1,
   link2,
+  address,
   area,
   size,
   householdCount,
@@ -59,6 +61,9 @@ export const MarkerContent: React.FC<IMarkerContent> = ({
         {title} {amount}억 ({approvalYear}년 승인)
         {renderLink(link1, "Kakao Map Favicon", "https://t1.daumcdn.net/localimg/localimages/07/common/kakaomap_favicon.ico")}
         {renderLink(link2, "Naver Favicon", "https://www.naver.com/favicon.ico")}
+      </div>
+      <div className="text-xs whitespace-normal">
+        {address}
       </div>
       <hr />
       <div className="text-xs whitespace-normal">

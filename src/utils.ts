@@ -10,7 +10,7 @@ export enum MapTypeIdEnum {
   USE_DISTRICT = "USE_DISTRICT", // 지적편집도
 }
 
-export interface Center { 
+export interface Center {
   lat: number
   lng: number
 }
@@ -22,6 +22,7 @@ export interface DataItem {
   approvalYear: string
   link1: string
   link2: string
+  address: string
   area: string
   size: string
   householdCount: number
