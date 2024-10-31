@@ -1,4 +1,5 @@
 export { MarkerContent } from './MarkerContent'
+export { MarkerHeader } from './MarkerHeader'
 export { RoadviewButton } from './RoadviewButton'
 export { MapMenu } from './MapMenu'
 export { PaneSash } from './PaneSash'
