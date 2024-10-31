@@ -1,28 +1,28 @@
-import React, { useMemo, useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { map, pipe } from 'ramda'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
+  CustomOverlayMap,
   Map,
-  MapTypeId,
   MapMarker,
   MapTypeControl,
-  CustomOverlayMap,
+  MapTypeId,
   ZoomControl,
 } from 'react-kakao-maps-sdk'
 
-import {
-  parseDate,
-  getMarkerImageSrc,
-  groupBy,
-  DataItem,
-  MarkerData,
-  getLatestDate,
-  Center,
-  MapTypeIdEnum,
-} from './utils'
-import { MarkerContent, MapMenu } from './components'
+import { MapMenu, MarkerContent, MarkerHeader } from './components'
 import './index.css'
 import './MapWalker.css'
+import {
+  Center,
+  DataItem,
+  MapTypeIdEnum,
+  MarkerData,
+  getLatestDate,
+  getMarkerImageSrc,
+  groupBy,
+  parseDate,
+} from './utils'
 
 interface MapSectionProps {
   mapRef: React.RefObject<kakao.maps.Map>
@@ -180,6 +180,7 @@ const createMarkerData = (group: DataItem[]): MarkerData => {
   const content = isGroup
     ? (
       <>
+        <MarkerHeader {...group[0]} groupSize={group.length} />
         {group.map((item, index) => (
           <React.Fragment key={index}>
             <MarkerContent {...{ ...item, firstDate }} />
@@ -188,7 +189,10 @@ const createMarkerData = (group: DataItem[]): MarkerData => {
       </>
     )
     : (
-      <MarkerContent {...group[0]} />
+      <>
+        <MarkerHeader {...group[0]} />
+        <MarkerContent {...group[0]} />
+      </>
     )
 
   return {
