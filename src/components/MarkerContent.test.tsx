@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, test } from 'vitest'
-import { MarkerContent } from './MarkerContent'
+import { IMarkerContent, MarkerContent } from './MarkerContent'
 
 describe('MarkerContent', () => {
-  const mockData = {
+  const mockData: IMarkerContent = {
     title: 'Test Title',
     amount: 10,
     link1: 'https://map.kakao.com',
@@ -14,14 +14,6 @@ describe('MarkerContent', () => {
     date: '2024-01-01',
     direction: 'South',
     firstDate: '2023-01-01',
-    area: 'Seoul',
-    size: '85',
-    householdCount: 100,
-    rooms: '3',
-    bathrooms: '2',
-    subway: 'Gangnam',
-    subwayLine: 'Line 2',
-    length: '500',
   }
 
   test('renders amount correctly with strong emphasis', () => {

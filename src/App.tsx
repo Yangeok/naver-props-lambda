@@ -1,9 +1,10 @@
+import { Allotment } from 'allotment'
+import 'allotment/dist/style.css'
 import React, { useEffect, useRef, useState } from 'react'
+import Div100vh from 'react-div-100vh'
 import { useKakaoLoader } from 'react-kakao-maps-sdk'
-import SplitPane, { Pane } from 'split-pane-react'
-import 'split-pane-react/esm/themes/default.css'
 
-import { PaneSash, RoadviewButton } from './components'
+import { RoadviewButton } from './components'
 import { useFetchCsv } from './hooks'
 import './index.css'
 import { MapSection } from './MapSection'
@@ -17,7 +18,7 @@ const App: React.FC = () => {
   })
 
   const [sizes, setSizes] = useState<any[]>(['100%', '0'])
-  const [split, setSplit] = useState<'vertical' | 'horizontal'>('vertical')
+  const [vertical, setVertical] = useState<boolean>(false)
   const mapRef = useRef<kakao.maps.Map>(null)
   const [center, setCenter] = useState<Center>({ lat: 37.566535, lng: 126.9779692 })
   const [pan, setPan] = useState(0)
@@ -63,9 +64,10 @@ const App: React.FC = () => {
   useEffect(() => {
     const updateSplit = () => {
       if (window.innerWidth < 768) {
-        setSplit('horizontal')
-      } else {
-        setSplit('vertical')
+        setVertical(true) // vertical
+      }
+      if (window.innerWidth >= 768) {
+        setVertical(false) // horizontal
       }
     }
 
@@ -83,24 +85,21 @@ const App: React.FC = () => {
   //#endregion
 
   return (
-    <div
+    <Div100vh
       className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
         }`}
     >
-      <SplitPane
-        split={split}
-        sizes={sizes}
+      <Allotment
+        key={vertical ? 'vertical' : 'horizontal'}
+        vertical={vertical}
+        defaultSizes={sizes}
         onChange={setSizes}
-        sashRender={() => <PaneSash split={split} />}
       >
         {/* Map Section */}
-        <Pane
-          minSize={50}
-          maxSize={"100%"}
-          className={`${isRoadviewVisible
-            ? 'md:w-[30%] w-full md:h-full h-1/2'
-            : 'w-full h-full'
-            }`}
+        <Allotment.Pane
+          preferredSize="100%"
+          visible={true}
+          className="w-full h-full"
         >
           <MapSection
             mapRef={mapRef}
@@ -118,12 +117,12 @@ const App: React.FC = () => {
             onClick={handleRoadviewToggle}
             isVisible={isRoadviewVisible}
           />
-        </Pane>
+        </Allotment.Pane>
 
         {/* Roadview Section */}
-        <Pane
-          className={`${isRoadviewVisible ? 'block' : 'hidden'
-            } md:w-[70%] w-full md:h-full h-1/2 relative`}
+        <Allotment.Pane
+          visible={isRoadviewVisible}
+          className="w-full h-full"
         >
           <RoadviewSection
             mapRef={mapRef}
@@ -133,9 +132,9 @@ const App: React.FC = () => {
             setCenter={setCenter}
             handleRoadviewToggle={handleRoadviewToggle}
           />
-        </Pane>
-      </SplitPane>
-    </div>
+        </Allotment.Pane>
+      </Allotment>
+    </Div100vh>
   )
 }
 
