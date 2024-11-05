@@ -2,6 +2,9 @@ interface IPaneSash {
   split: "vertical" | "horizontal"
 }
 
+/**
+ * @deprecated
+ */
 export const PaneSash: React.FC<IPaneSash> = ({ split }) => {
   return (
     <div
