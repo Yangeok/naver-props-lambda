@@ -9,7 +9,6 @@ interface RoadviewSectionProps {
   pan: number
   setPan: React.Dispatch<React.SetStateAction<number>>
   setCenter: React.Dispatch<React.SetStateAction<Center>>
-  handleRoadviewToggle: () => void
 }
 
 export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
@@ -18,7 +17,6 @@ export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
   pan,
   setPan,
   setCenter,
-  handleRoadviewToggle,
 }) => {
   if (!mapRef.current) {
     return
@@ -42,12 +40,6 @@ export const RoadviewSection: React.FC<RoadviewSectionProps> = ({
       >
         <RoadviewMarker position={center} />
       </Roadview>
-      <button
-        onClick={handleRoadviewToggle}
-        className="absolute px-2 py-1 bg-white border border-gray-300 rounded cursor-pointer top-2 left-2"
-      >
-        닫기
-      </button>
     </>
   )
 }
