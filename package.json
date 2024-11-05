@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "rm -rf dist && tsc -b && vite build",
     "deploy": "rsync -av --exclude='*.csv' dist/ yangeok-dev2:/home/ubuntu/naver-props-map/dist",
+    "download": "scp yangeok-dev2:/home/ubuntu/naver-props-map/dist/analysis.csv public/analysis.csv",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
