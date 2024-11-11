@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { MapTypeIdEnum } from '../utils'
 
 interface IMapMenu { 
@@ -7,6 +7,9 @@ interface IMapMenu {
   setMapTypeIds: (type: MapTypeIdEnum[]) => void
 }
 
+/**
+ * @deprecated
+ */
 export const MapMenu: React.FC<IMapMenu> = ({ mapTypeIds, setMapTypeIds }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)

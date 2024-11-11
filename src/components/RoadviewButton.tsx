@@ -1,4 +1,5 @@
 import React from 'react'
+import { FaStreetView } from 'react-icons/fa'
 
 interface IRoadviewButton {
   isVisible: boolean
@@ -6,19 +7,16 @@ interface IRoadviewButton {
 }
 
 export const RoadviewButton: React.FC<IRoadviewButton> = ({ isVisible, onClick }) => {
-  const sourceImage = 'https://t1.daumcdn.net/localimg/localimages/07/2018/pc/common/img_search.png'
-  const enabled = '0 -350px'
-  const disabled = '0 -450px'
-
   return (
     <div
       role="button"
       onClick={onClick}
-      className="absolute z-10 w-10 h-10 bg-no-repeat cursor-pointer top-1 left-1"
-      style={{
-        backgroundImage: `url('${sourceImage}')`,
-        backgroundPosition: isVisible ? enabled : disabled,
-      }}
-    />
+      className="absolute z-10 bg-no-repeat cursor-pointer top-[10px] right-[10px] w-[36px] h-[36px] bg-[#f5f5f5] border border-[#bfbfbf] border-t-[rgb(226,226,226)] rounded flex items-center justify-center shadow-md hover:bg-[#e6e6e6]"
+    >
+      <FaStreetView
+        size={18}
+        className={`${isVisible ? 'text-blue-500' : 'text-gray-300'}`}
+      />
+    </div>
   )
 }

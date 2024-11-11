@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
+/**
+ * @deprecated
+ */
 export function useThrottle<T>(value: T, limit: number): T {
   const [throttledValue, setThrottledValue] = useState(value)
   const lastRan = useRef(Date.now())

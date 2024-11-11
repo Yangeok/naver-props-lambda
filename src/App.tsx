@@ -2,6 +2,7 @@ import { Allotment } from 'allotment'
 import 'allotment/dist/style.css'
 import React, { useEffect, useRef, useState } from 'react'
 import Div100vh from 'react-div-100vh'
+import { HiMenu } from "react-icons/hi"
 import { useKakaoLoader } from 'react-kakao-maps-sdk'
 
 import { RoadviewButton } from './components'
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [data, setData] = useState<DataItem[]>([])
   const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
   const [isRoadviewVisible, setIsRoadviewVisible] = useState(false)
+  const [collapsed, setCollapsed] = useState(true) // Sidebar
 
   const { rows, error } = useFetchCsv('/analysis.csv')
 
@@ -89,6 +91,14 @@ const App: React.FC = () => {
       className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
         }`}
     >
+      {/* Navigation */}
+      <div
+        onClick={() => setCollapsed(!collapsed)}
+        className="top-[10px] left-[10px] !fixed !z-50 p-2 bg-[#f5f5f5] cursor-pointer text-xl font-bold border-b rounded border-[#bfbfbf] hover:bg-[#e6e6e6] flex items-center justify-center"
+      >
+        <HiMenu size={18} />
+      </div>
+
       <Allotment
         key={vertical ? 'vertical' : 'horizontal'}
         vertical={vertical}
@@ -130,7 +140,6 @@ const App: React.FC = () => {
             pan={pan}
             setPan={setPan}
             setCenter={setCenter}
-            handleRoadviewToggle={handleRoadviewToggle}
           />
         </Allotment.Pane>
       </Allotment>

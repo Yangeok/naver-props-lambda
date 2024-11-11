@@ -5,18 +5,15 @@ import {
   CustomOverlayMap,
   Map,
   MapMarker,
-  MapTypeControl,
   MapTypeId,
-  ZoomControl,
 } from 'react-kakao-maps-sdk'
 
-import { MapMenu, MarkerContent, MarkerHeader } from './components'
+import { MarkerContent, MarkerHeader, ZoomControl } from './components'
 import './index.css'
 import './MapWalker.css'
 import {
   Center,
   DataItem,
-  MapTypeIdEnum,
   MarkerData,
   getLatestDate,
   getMarkerImageSrc,
@@ -64,6 +61,12 @@ export const MapSection: React.FC<MapSectionProps> = ({
     if (isRoadviewVisible) setCenter({ lat: mouseEvent.latLng.getLat(), lng: mouseEvent.latLng.getLng() })
   }
 
+  const handleMapDragEnd = (
+    _map: kakao.maps.Map,
+  ) => {
+    if (isRoadviewVisible) setCenter({ lat: _map.getCenter().getLat(), lng: _map.getCenter().getLng() })
+  }
+
   const getAngleClassName = (angle: number) => {
     const threshold = 22.5
 
@@ -74,11 +77,25 @@ export const MapSection: React.FC<MapSectionProps> = ({
     return index !== undefined ? "m" + index : ""
   }
 
+  const zoomIn = () => {
+    const map = mapRef.current
+    if (!map) return
+    // map.setLevel(map.getLevel() - 1) // REMOVE:
+    setZoomLevel(map.getLevel() - 1)
+  }
+
+  const zoomOut = () => {
+    const map = mapRef.current
+    if (!map) return
+    // map.setLevel(map.getLevel() + 1) // REMOVE:
+    setZoomLevel(map.getLevel() + 1)
+  }
+
   const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
 
   useEffect(() => {
     if (!mapRef.current) return
-    
+
     if (isRoadviewVisible) {
       mapRef.current.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
       setCenter({
@@ -91,13 +108,13 @@ export const MapSection: React.FC<MapSectionProps> = ({
       mapRef.current.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
       setSizes(['100%', '0'])
     }
-    
+
     mapRef.current.relayout()
   }, [mapRef, isRoadviewVisible])
 
   useEffect(() => {
     if (!mapRef.current) return
-  
+
     mapRef.current.relayout()
   }, [sizes])
 
@@ -108,6 +125,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
       level={zoomLevel}
       ref={mapRef}
       onClick={handleMapClick}
+      onDragEnd={handleMapDragEnd}
       onZoomChanged={(map) => {
         setZoomLevel(map.getLevel())
       }}
@@ -129,13 +147,14 @@ export const MapSection: React.FC<MapSectionProps> = ({
         </>
       )}
 
-      {/* Map Controls */}
-      <MapMenu setMapTypeIds={handleSetMapTypeIds} mapTypeIds={mapTypeIds} />
-      <MapTypeControl position="TOPRIGHT" />
-      <ZoomControl position="RIGHT" />
+      {/* REMOVE:Map Controls */}
+      {/* <MapMenu setMapTypeIds={handleSetMapTypeIds} mapTypeIds={mapTypeIds} /> */}
 
-      {/* Map Types */}
-      {mapTypeIds && mapTypeIds.map(mapTypeId => <MapTypeId type={mapTypeId} key={mapTypeId} />)}
+      {/* Zoom Control */}
+      <ZoomControl onZoomIn={zoomIn} onZoomOut={zoomOut} />
+
+      {/* REMOVE: Map Types */}
+      {/* {mapTypeIds && mapTypeIds.map(mapTypeId => <MapTypeId type={mapTypeId} key={mapTypeId} />)} */}
 
       {/* Render Markers */}
       {markers}
