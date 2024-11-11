@@ -61,6 +61,12 @@ export const MapSection: React.FC<MapSectionProps> = ({
     if (isRoadviewVisible) setCenter({ lat: mouseEvent.latLng.getLat(), lng: mouseEvent.latLng.getLng() })
   }
 
+  const handleMapDragEnd = (
+    _map: kakao.maps.Map,
+  ) => {
+    if (isRoadviewVisible) setCenter({ lat: _map.getCenter().getLat(), lng: _map.getCenter().getLng() })
+  }
+
   const getAngleClassName = (angle: number) => {
     const threshold = 22.5
 
@@ -119,6 +125,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
       level={zoomLevel}
       ref={mapRef}
       onClick={handleMapClick}
+      onDragEnd={handleMapDragEnd}
       onZoomChanged={(map) => {
         setZoomLevel(map.getLevel())
       }}
