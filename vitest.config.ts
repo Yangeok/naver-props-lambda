@@ -1,6 +1,6 @@
-import { mergeConfig } from 'vite'
-import { defineConfig } from 'vitest/config'
 import viteConfig from './vite.config.ts'
+import { defineConfig } from 'vitest/config'
+import { mergeConfig } from 'vite'
 
 export default mergeConfig(
   viteConfig,
@@ -10,5 +10,5 @@ export default mergeConfig(
       environment: 'jsdom',
       setupFiles: ['./vitest.setup.ts'],
     },
-  }),
+  })
 )

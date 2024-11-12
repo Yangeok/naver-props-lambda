@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
 import { describe, expect, test } from 'vitest'
 import { MarkerHeader } from './MarkerHeader'
+import { render, screen } from '@testing-library/react'
 
 describe('MarkerHeader', () => {
   const mockData = {
@@ -36,7 +36,9 @@ describe('MarkerHeader', () => {
 
   test('renders room and bathroom count correctly', () => {
     render(<MarkerHeader {...mockData} />)
-    expect(screen.getByText('방/화장실 3/2개 Line 2 (Gangnam) 500m')).toBeInTheDocument()
+    expect(
+      screen.getByText('방/화장실 3/2개 Line 2 (Gangnam) 500m')
+    ).toBeInTheDocument()
   })
 
   test('does not render subway information if subway is unavailable', () => {

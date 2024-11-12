@@ -1,6 +1,6 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useFetchCsv } from './useFetchCsv'
-import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest'
 
 const mockCsvData = `column1,column2,column3\nvalue1,value2,value3\nvalue4,value5,value6`
 

@@ -1,13 +1,14 @@
 import { differenceInDays, startOfDay } from 'date-fns'
 import { ReactNode } from 'react'
 
+// FIXME:
 export enum MapTypeIdEnum {
-  HYBRID = "HYBRID", // 스카이뷰 + 레이블
-  ROADVIEW = "ROADVIEW", // 로드뷰
-  TRAFFIC = "TRAFFIC", // 교통정보
-  TERRAIN = "TERRAIN", // 지형도
-  BICYCLE = "BICYCLE", // 자전거
-  USE_DISTRICT = "USE_DISTRICT", // 지적편집도
+  HYBRID = 'HYBRID', // 스카이뷰 + 레이블
+  ROADVIEW = 'ROADVIEW', // 로드뷰
+  TRAFFIC = 'TRAFFIC', // 교통정보
+  TERRAIN = 'TERRAIN', // 지형도
+  BICYCLE = 'BICYCLE', // 자전거
+  USE_DISTRICT = 'USE_DISTRICT', // 지적편집도
 }
 
 export interface Center {
@@ -48,15 +49,21 @@ export interface MarkerData {
   latestDate: Date
 }
 
-export const groupBy = <T, K extends keyof any>(array: T[], getKey: (item: T) => K) => {
-  return array.reduce((acc, item) => {
-    const key = getKey(item)
-    if (!acc[key]) {
-      acc[key] = []
-    }
-    acc[key].push(item)
-    return acc
-  }, {} as Record<K, T[]>)
+export const groupBy = <T, K extends keyof any>(
+  array: T[],
+  getKey: (item: T) => K
+) => {
+  return array.reduce(
+    (acc, item) => {
+      const key = getKey(item)
+      if (!acc[key]) {
+        acc[key] = []
+      }
+      acc[key].push(item)
+      return acc
+    },
+    {} as Record<K, T[]>
+  )
 }
 
 export const parseDate = (str: string) => {
@@ -68,16 +75,22 @@ export const parseDate = (str: string) => {
 }
 
 export const getLatestDate = (dates: Date[]): Date => {
-  return dates.reduce((latest, current) => (current > latest ? current : latest))
+  return dates.reduce((latest, current) =>
+    current > latest ? current : latest
+  )
 }
 
-export const filterGroupedItems = <T>(groupedItems: Record<string, T[]>): T[][] => {
-  return Object.values(groupedItems).filter(group => group.length > 1)
+export const filterGroupedItems = <T>(
+  groupedItems: Record<string, T[]>
+): T[][] => {
+  return Object.values(groupedItems).filter((group) => group.length > 1)
 }
 
-export const filterOutGroupedItems = <T>(groupedItems: Record<string, T[]>): T[] => {
+export const filterOutGroupedItems = <T>(
+  groupedItems: Record<string, T[]>
+): T[] => {
   return Object.values(groupedItems)
-    .filter(group => group.length === 1)
+    .filter((group) => group.length === 1)
     .flat()
 }
 

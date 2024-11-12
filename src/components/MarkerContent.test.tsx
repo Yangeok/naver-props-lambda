@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
 import { describe, expect, test } from 'vitest'
 import { IMarkerContent, MarkerContent } from './MarkerContent'
+import { render, screen } from '@testing-library/react'
 
 describe('MarkerContent', () => {
   const mockData: IMarkerContent = {
@@ -18,7 +18,9 @@ describe('MarkerContent', () => {
 
   test('renders amount correctly with strong emphasis', () => {
     render(<MarkerContent {...mockData} />)
-    expect(screen.getByText((content) => content.includes('10억'))).toBeInTheDocument()
+    expect(
+      screen.getByText((content) => content.includes('10억'))
+    ).toBeInTheDocument()
   })
 
   test('renders links correctly', () => {
@@ -28,13 +30,21 @@ describe('MarkerContent', () => {
 
     expect(kakaoLink).toBeInTheDocument()
     expect(naverLink).toBeInTheDocument()
-    expect(kakaoLink.closest('a')).toHaveAttribute('href', 'https://map.kakao.com')
-    expect(naverLink.closest('a')).toHaveAttribute('href', 'https://map.naver.com')
+    expect(kakaoLink.closest('a')).toHaveAttribute(
+      'href',
+      'https://map.kakao.com'
+    )
+    expect(naverLink.closest('a')).toHaveAttribute(
+      'href',
+      'https://map.naver.com'
+    )
   })
 
   test('renders floor, rooms, and bathrooms correctly', () => {
     render(<MarkerContent {...mockData} />)
-    expect(screen.getByText((content) => content.includes('1/10층 South'))).toBeInTheDocument()
+    expect(
+      screen.getByText((content) => content.includes('1/10층 South'))
+    ).toBeInTheDocument()
   })
 
   test('renders additional information correctly', () => {
@@ -44,13 +54,27 @@ describe('MarkerContent', () => {
 
   test('renders registration date and first date correctly', () => {
     render(<MarkerContent {...mockData} />)
-    expect(screen.getByText((content) => content.includes('2024-01-01 등록 (2023-01-01 최초 등록)'))).toBeInTheDocument()
+    expect(
+      screen.getByText((content) =>
+        content.includes('2024-01-01 등록 (2023-01-01 최초 등록)')
+      )
+    ).toBeInTheDocument()
   })
 
   test('does not render firstDate if it matches date', () => {
-    const sameDateData = { ...mockData, date: '2023-01-01', firstDate: '2023-01-01' }
+    const sameDateData = {
+      ...mockData,
+      date: '2023-01-01',
+      firstDate: '2023-01-01',
+    }
     render(<MarkerContent {...sameDateData} />)
-    expect(screen.getByText((content) => content.includes('2023-01-01 등록'))).toBeInTheDocument()
-    expect(screen.queryByText((content) => content.includes('(2023-01-01 최초 등록)'))).not.toBeInTheDocument()
+    expect(
+      screen.getByText((content) => content.includes('2023-01-01 등록'))
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText((content) =>
+        content.includes('(2023-01-01 최초 등록)')
+      )
+    ).not.toBeInTheDocument()
   })
 })

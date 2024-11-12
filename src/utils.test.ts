@@ -1,14 +1,14 @@
-import { startOfDay, subDays } from 'date-fns'
-import { describe, test, expect } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import {
-  parseDate,
-  getLatestDate,
-  groupBy,
   filterGroupedItems,
   filterOutGroupedItems,
+  getLatestDate,
   getRgbCode,
+  groupBy,
+  parseDate,
   utf8ToBase64,
 } from './utils'
+import { startOfDay, subDays } from 'date-fns'
 
 describe('Utils Module', () => {
   describe('parseDate', () => {
@@ -77,7 +77,10 @@ describe('Utils Module', () => {
         group3: [4, 5, 6],
       }
       const result = filterGroupedItems(groupedItems)
-      expect(result).toEqual([[1, 2], [4, 5, 6]])
+      expect(result).toEqual([
+        [1, 2],
+        [4, 5, 6],
+      ])
     })
 
     test('returns empty array when no groups have more than one item', () => {
@@ -116,27 +119,27 @@ describe('Utils Module', () => {
       const today = startOfDay(new Date())
       expect(getRgbCode(today)).toBe('#1E90FF')
     })
-  
+
     test('should return #00BFFF for yesterday', () => {
       const yesterday = startOfDay(subDays(new Date(), 1))
       expect(getRgbCode(yesterday)).toBe('#00BFFF')
     })
-  
+
     test('should return #00FF7F for 2 days ago', () => {
       const twoDaysAgo = startOfDay(subDays(new Date(), 2))
       expect(getRgbCode(twoDaysAgo)).toBe('#00FF7F')
     })
-  
+
     test('should return #32CD32 for 5 days ago', () => {
       const fiveDaysAgo = startOfDay(subDays(new Date(), 5))
       expect(getRgbCode(fiveDaysAgo)).toBe('#32CD32')
     })
-  
+
     test('should return #ADFF2F for 10 days ago', () => {
       const tenDaysAgo = startOfDay(subDays(new Date(), 10))
       expect(getRgbCode(tenDaysAgo)).toBe('#ADFF2F')
     })
-  
+
     test('should return #FFD700 for more than 14 days ago', () => {
       const fifteenDaysAgo = startOfDay(subDays(new Date(), 15))
       expect(getRgbCode(fifteenDaysAgo)).toBe('#FFD700')

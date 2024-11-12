@@ -37,13 +37,20 @@ export const MarkerContent: React.FC<IMarkerContent> = ({
   return (
     <div className="relative float-left p-1 mb-1 bg-white border border-b-2 border-gray-300 rounded-md shadow-sm border-b-gray-400 w-72">
       <div className="text-xs whitespace-normal">
-        <strong className="text-sm font-semibold">{amount}</strong><strong>억원</strong> {minFloor}/{maxFloor}층 {direction}
-        {renderLink(link1, "Kakao Map Favicon", "https://t1.daumcdn.net/localimg/localimages/07/common/kakaomap_favicon.ico")}
-        {renderLink(link2, "Naver Favicon", "https://www.naver.com/favicon.ico")}
+        <strong className="text-sm font-semibold">{amount}</strong>
+        <strong>억원</strong> {minFloor}/{maxFloor}층 {direction}
+        {renderLink(
+          link1,
+          'Kakao Map Favicon',
+          'https://t1.daumcdn.net/localimg/localimages/07/common/kakaomap_favicon.ico'
+        )}
+        {renderLink(
+          link2,
+          'Naver Favicon',
+          'https://www.naver.com/favicon.ico'
+        )}
       </div>
-      <div className="text-xs whitespace-normal">
-        
-      </div>
+      <div className="text-xs whitespace-normal"></div>
       <div className="text-xs whitespace-normal">{additionalInfo}</div>
       <div className="text-xs whitespace-normal">
         {date} 등록
