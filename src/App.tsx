@@ -4,9 +4,9 @@ import { Allotment } from 'allotment'
 import { Center, DataItem, MarkerData } from './utils'
 import { HiMenu } from 'react-icons/hi'
 import { MapSection } from './MapSection'
-import { Menu, Sidebar, SubMenu } from 'react-pro-sidebar'
 import { RoadviewButton } from './components'
 import { RoadviewSection } from './RoadviewSection'
+import { SidebarSection } from './SidebarSection'
 import { useFetchCsv } from './hooks'
 import { useKakaoLoader } from 'react-kakao-maps-sdk'
 import { useNavigate } from 'react-router-dom'
@@ -74,9 +74,13 @@ const App: React.FC = () => {
       if (event.key === 'Escape') {
         setIsRoadviewVisible(false)
         setSelectedMarker(null)
+        setCollapsed(true)
       }
       if (event.key.toLowerCase() === 'r' || event.key === 'ㄱ') {
         setIsRoadviewVisible((prev) => !prev)
+      }
+      if (event.key === 'm' || event.key === 'ㅡ') {
+        setCollapsed((prev) => !prev)
       }
     }
 
@@ -129,49 +133,14 @@ const App: React.FC = () => {
         <HiMenu size={18} />
       </div>
 
-      {/* Sidebar */}
-      <div
-        className={`sidebar-container !fixed !z-40 h-full transition-all duration-300 transform ${
-          collapsed ? '-translate-x-full' : 'translate-x-0'
-        }`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Sidebar
-          collapsed={false}
-          className="h-full bg-white"
-          style={{ backgroundColor: 'white' }}
-        >
-          <div className="gap-2 pt-4 pl-4 text-lg font-semibold text-primary">
-            일반
-          </div>
-          <Menu>
-            {/* TODO: hook으로 변경하여 open 상태 여러개 만들지 않도록 */}
-            <SubMenu label="매물" onClick={handlePropertyClick} open={true}>
-              <div className="p-4 max-h-[600px] overflow-y-auto">
-                {data.slice(0, 10).map((item, index) => (
-                  <div
-                    key={index}
-                    className="p-0.5 mb-2 border-b hover:bg-gray-50"
-                  >
-                    <div className="flex flex-col gap-1">
-                      <div className="text-sm font-semibold">{item.title}</div>
-                      <div className="text-xs text-gray-600">
-                        {item.amount}억원 • {item.area}㎡
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {item.address}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {item.subway} {item.length}m
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </SubMenu>
-          </Menu>
-        </Sidebar>
-      </div>
+      {/* Sidebar Section */}
+      <SidebarSection
+        data={data}
+        collapsed={collapsed}
+        handlePropertyClick={handlePropertyClick}
+        setCenter={setCenter}
+        setSelectedMarker={setSelectedMarker}
+      />
 
       <Allotment
         key={vertical ? 'vertical' : 'horizontal'}
