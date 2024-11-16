@@ -1,11 +1,29 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Center, DataItem, getLatestDate, getMarkerImageSrc, groupBy, MarkerData, parseDate } from './utils';
-import { CustomOverlayMap, Map, MapMarker, MapTypeId } from 'react-kakao-maps-sdk';
-import { format } from 'date-fns';
-import { LayerButton, MarkerContent, MarkerHeader, ZoomControl } from './components';
-import { map, pipe } from 'ramda';
-import './index.css';
-import './MapWalker.css';
+import React, { useEffect, useMemo, useState } from 'react'
+import {
+  Center,
+  DataItem,
+  getLatestDate,
+  getMarkerImageSrc,
+  groupBy,
+  MarkerData,
+  parseDate,
+} from './utils'
+import {
+  CustomOverlayMap,
+  Map,
+  MapMarker,
+  MapTypeId,
+} from 'react-kakao-maps-sdk'
+import { format } from 'date-fns'
+import {
+  LayerButton,
+  MarkerContent,
+  MarkerHeader,
+  ZoomControl,
+} from './components'
+import { map, pipe } from 'ramda'
+import './index.css'
+import './MapWalker.css'
 
 interface MapSectionProps {
   mapRef: React.RefObject<kakao.maps.Map>
