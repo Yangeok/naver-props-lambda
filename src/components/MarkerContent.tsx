@@ -1,15 +1,38 @@
 import React from 'react'
 
+/**
+ * 마커 콘텐츠의 상세 정보를 담고 있는 인터페이스입니다.
+ * 지도에서 특정 마커에 대한 부동산 관련 정보를 표시하는 데 사용됩니다.
+ */
 export interface IMarkerContent {
+  /** 매물 이름 */
   title: string
+
+  /** 매물과 관련된 금액 (예: 가격 또는 비용) */
   amount: number
+
+  /** 매물과 관련된 주요 링크 */
   link1: string
+
+  /** 매물과 관련된 추가 링크 */
   link2: string
+
+  /** 매물의 최소 층수 */
   minFloor: number | string
+
+  /** 매물의 최대 층수 */
   maxFloor: number
+
+  /** 매물에 대한 추가 정보 */
   additionalInfo: string
+
+  /** 정보 업데이트 날짜 */
   date: string
+
+  /** 매물의 방향 */
   direction: string
+
+  /** 매물의 첫 등록일 (선택적 필드) */
   firstDate?: string
 }
 

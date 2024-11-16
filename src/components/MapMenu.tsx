@@ -2,8 +2,15 @@ import { Controller, useForm } from 'react-hook-form'
 import { MapTypeIdEnum } from '../utils'
 import { useEffect, useRef, useState } from 'react'
 
+/**
+ * 지도 메뉴 설정을 위한 인터페이스입니다.
+ * 선택된 지도 유형을 저장하고 업데이트하는 기능을 포함합니다.
+ */
 interface IMapMenu {
+  /** 활성화된 지도 유형들의 배열 */
   mapTypeIds: MapTypeIdEnum[]
+
+  /** 지도 유형 배열을 설정하는 함수 */
   setMapTypeIds: (type: MapTypeIdEnum[]) => void
 }
 
