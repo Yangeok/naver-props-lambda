@@ -7,19 +7,23 @@ interface PaginationProps {
 
 export const Pagination = ({ pageCount, onPageChange }: PaginationProps) => {
   return (
-    <ReactPaginate
-      previousLabel="<"
-      nextLabel=">"
-      breakLabel=".."
-      pageCount={pageCount}
-      marginPagesDisplayed={1}
-      pageRangeDisplayed={1}
-      onPageChange={onPageChange}
-      containerClassName="pagination flex justify-center mt-2 list-none"
-      pageClassName="px-2 py-1 border text-xs first:ml-0 last:mr-0"
-      previousClassName="px-2 py-1 border text-xs"
-      nextClassName="px-2 py-1 border text-xs"
-      activeClassName="bg-gray-300 text-black font-semibold rounded"
-    />
+    <div className="flex justify-center w-full">
+      <ReactPaginate
+        previousLabel="<"
+        nextLabel=">"
+        breakLabel=".."
+        pageCount={pageCount}
+        marginPagesDisplayed={1}
+        pageRangeDisplayed={1}
+        onPageChange={onPageChange}
+        containerClassName="pagination flex gap-1 mt-2 list-none p-0"
+        pageClassName="px-2 py-1 border rounded text-xs hover:bg-gray-100"
+        previousClassName="px-2 py-1 border rounded text-xs hover:bg-gray-100"
+        nextClassName="px-2 py-1 border rounded text-xs hover:bg-gray-100"
+        breakClassName="px-2 py-1 text-xs"
+        activeClassName="!bg-gray-900 !text-white"
+        disabledClassName="opacity-50 cursor-not-allowed"
+      />
+    </div>
   )
 }
