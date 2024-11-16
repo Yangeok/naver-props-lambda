@@ -15,7 +15,6 @@ import 'allotment/dist/style.css'
 
 const App: React.FC = () => {
   const navigate = useNavigate()
-  // const [searchParams] = useSearchParams()
 
   useKakaoLoader({
     appkey: String(import.meta.env.VITE_KAKAO_APP_KEY),
