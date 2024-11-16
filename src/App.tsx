@@ -1,18 +1,21 @@
-import { Allotment } from 'allotment'
-import 'allotment/dist/style.css'
-import React, { useEffect, useRef, useState } from 'react'
 import Div100vh from 'react-div-100vh'
-import { HiMenu } from "react-icons/hi"
-import { useKakaoLoader } from 'react-kakao-maps-sdk'
-
-import { RoadviewButton } from './components'
-import { useFetchCsv } from './hooks'
-import './index.css'
-import { MapSection } from './MapSection'
-import { RoadviewSection } from './RoadviewSection'
+import React, { useEffect, useRef, useState } from 'react'
+import { Allotment } from 'allotment'
 import { Center, DataItem, MarkerData } from './utils'
+import { HiMenu } from 'react-icons/hi'
+import { MapSection } from './MapSection'
+import { RoadviewButton } from './components'
+import { RoadviewSection } from './RoadviewSection'
+import { SidebarSection } from './SidebarSection'
+import { useFetchCsv } from './hooks'
+import { useKakaoLoader } from 'react-kakao-maps-sdk'
+import { useNavigate } from 'react-router-dom'
+import './index.css'
+import 'allotment/dist/style.css'
 
 const App: React.FC = () => {
+  const navigate = useNavigate()
+
   useKakaoLoader({
     appkey: String(import.meta.env.VITE_KAKAO_APP_KEY),
     libraries: ['services'],
@@ -21,7 +24,10 @@ const App: React.FC = () => {
   const [sizes, setSizes] = useState<any[]>(['100%', '0'])
   const [vertical, setVertical] = useState<boolean>(false)
   const mapRef = useRef<kakao.maps.Map>(null)
-  const [center, setCenter] = useState<Center>({ lat: 37.566535, lng: 126.9779692 })
+  const [center, setCenter] = useState<Center>({
+    lat: 37.566535,
+    lng: 126.9779692,
+  })
   const [pan, setPan] = useState(0)
   const [data, setData] = useState<DataItem[]>([])
   const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
@@ -30,9 +36,25 @@ const App: React.FC = () => {
 
   const { rows, error } = useFetchCsv('/analysis.csv')
 
+  //#region handler fns
   const handleRoadviewToggle = () => {
     setIsRoadviewVisible(!isRoadviewVisible)
   }
+
+  const handleOutsideClick = (e: React.MouseEvent) => {
+    if (
+      !collapsed &&
+      (e.target as HTMLElement).closest('.sidebar-container') === null
+    ) {
+      setCollapsed(true)
+    }
+  }
+
+  const handlePropertyClick = () => {
+    // TODO: 나중에 필터 추가: `/properties?minPrice=1000&maxPrice=5000`
+    navigate('/properties')
+  }
+  //#endregion
 
   //#region `useEffect`
   useEffect(() => {
@@ -51,9 +73,13 @@ const App: React.FC = () => {
       if (event.key === 'Escape') {
         setIsRoadviewVisible(false)
         setSelectedMarker(null)
+        setCollapsed(true)
       }
       if (event.key.toLowerCase() === 'r' || event.key === 'ㄱ') {
         setIsRoadviewVisible((prev) => !prev)
+      }
+      if (event.key === 'm' || event.key === 'ㅡ') {
+        setCollapsed((prev) => !prev)
       }
     }
 
@@ -88,16 +114,32 @@ const App: React.FC = () => {
 
   return (
     <Div100vh
-      className={`relative h-screen overflow-hidden ${isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
-        }`}
+      className={`relative h-screen overflow-hidden ${
+        isRoadviewVisible ? 'flex md:flex-row flex-col' : ''
+      }`}
+      onClick={handleOutsideClick}
     >
       {/* Navigation */}
       <div
-        onClick={() => setCollapsed(!collapsed)}
-        className="top-[10px] left-[10px] !fixed !z-50 p-2 bg-[#f5f5f5] cursor-pointer text-xl font-bold border-b rounded border-[#bfbfbf] hover:bg-[#e6e6e6] flex items-center justify-center"
+        onClick={(e) => {
+          e.stopPropagation()
+          setCollapsed(!collapsed)
+        }}
+        className={`top-[10px] left-[10px] !fixed !z-50 p-2 bg-[#f5f5f5] cursor-pointer text-xl font-bold border-b rounded border-[#bfbfbf] hover:bg-[#e6e6e6] flex items-center justify-center transition-all duration-300 ${
+          collapsed ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
       >
         <HiMenu size={18} />
       </div>
+
+      {/* Sidebar Section */}
+      <SidebarSection
+        data={data}
+        collapsed={collapsed}
+        handlePropertyClick={handlePropertyClick}
+        setCenter={setCenter}
+        setSelectedMarker={setSelectedMarker}
+      />
 
       <Allotment
         key={vertical ? 'vertical' : 'horizontal'}
@@ -130,10 +172,7 @@ const App: React.FC = () => {
         </Allotment.Pane>
 
         {/* Roadview Section */}
-        <Allotment.Pane
-          visible={isRoadviewVisible}
-          className="w-full h-full"
-        >
+        <Allotment.Pane visible={isRoadviewVisible} className="w-full h-full">
           <RoadviewSection
             mapRef={mapRef}
             center={center}

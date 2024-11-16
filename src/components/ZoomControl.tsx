@@ -5,7 +5,10 @@ interface ZoomControlProps {
   onZoomOut: () => void
 }
 
-export const ZoomControl: React.FC<ZoomControlProps> = ({ onZoomIn, onZoomOut }) => {
+export const ZoomControl: React.FC<ZoomControlProps> = ({
+  onZoomIn,
+  onZoomOut,
+}) => {
   return (
     <div className="absolute top-[50px] right-[10px] w-[36px] h-[80px] overflow-hidden z-[1] bg-[#f5f5f5] border border-[#bfbfbf] rounded shadow-md">
       <span

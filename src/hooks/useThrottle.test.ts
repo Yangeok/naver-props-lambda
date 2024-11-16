@@ -1,5 +1,5 @@
-import { describe, test, expect, beforeEach, afterEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { useThrottle } from './useThrottle'
 import { vi } from 'vitest'
 

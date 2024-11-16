@@ -1,6 +1,6 @@
-import { renderHook, act } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { useDebounce } from './useDebounce'
-import { vi, describe, test, expect, beforeEach, afterEach } from 'vitest'
 
 describe('useDebounce', () => {
   beforeEach(() => {
@@ -25,17 +25,17 @@ describe('useDebounce', () => {
       }
     )
 
-        expect(result.current).toBe('initial')
+    expect(result.current).toBe('initial')
 
-        rerender({ value: 'updated', delay: 500 })
+    rerender({ value: 'updated', delay: 500 })
 
-        expect(result.current).toBe('initial')
+    expect(result.current).toBe('initial')
 
-        act(() => {
+    act(() => {
       vi.advanceTimersByTime(500)
     })
 
-        expect(result.current).toBe('updated')
+    expect(result.current).toBe('updated')
   })
 
   test('should reset debounce timer when value changes before delay', () => {
@@ -48,21 +48,21 @@ describe('useDebounce', () => {
 
     expect(result.current).toBe('initial')
 
-        rerender({ value: 'updated', delay: 500 })
+    rerender({ value: 'updated', delay: 500 })
 
-        act(() => {
+    act(() => {
       vi.advanceTimersByTime(250)
     })
 
     expect(result.current).toBe('initial')
 
-        rerender({ value: 'latest', delay: 500 })
+    rerender({ value: 'latest', delay: 500 })
 
-        act(() => {
+    act(() => {
       vi.advanceTimersByTime(500)
     })
 
-        expect(result.current).toBe('latest')
+    expect(result.current).toBe('latest')
   })
 
   test('should clean up the timeout on unmount', () => {
@@ -75,14 +75,14 @@ describe('useDebounce', () => {
 
     expect(result.current).toBe('initial')
 
-        rerender({ value: 'updated', delay: 500 })
+    rerender({ value: 'updated', delay: 500 })
 
-        unmount()
+    unmount()
 
-        act(() => {
+    act(() => {
       vi.advanceTimersByTime(500)
     })
 
-        expect(result.current).toBe('initial')
+    expect(result.current).toBe('initial')
   })
 })

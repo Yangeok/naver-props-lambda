@@ -1,8 +1,8 @@
-import { vi, beforeEach, describe, expect, it } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import '@testing-library/jest-dom'
-import { MapMenu } from './MapMenu'
-import { MapTypeIdEnum } from '../utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MapMenu } from './MapMenu';
+import { MapTypeIdEnum } from '../utils';
+import '@testing-library/jest-dom';
 
 describe('MapMenu Component', () => {
   const mockSetMapTypeIds = vi.fn()

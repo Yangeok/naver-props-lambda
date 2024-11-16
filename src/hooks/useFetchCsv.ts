@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
+import { useEffect, useState } from 'react'
 
 export const useFetchCsv = (url: string) => {
   const [header, setHeader] = useState<string[]>()
@@ -13,7 +13,7 @@ export const useFetchCsv = (url: string) => {
       headers: {
         pragma: 'no-cache',
         'cache-control': 'no-cache',
-      }
+      },
     })
       .then((response) => response.text())
       .then((text) => {

@@ -1,25 +1,29 @@
-import { format } from 'date-fns'
-import { map, pipe } from 'ramda'
 import React, { useEffect, useMemo, useState } from 'react'
+import {
+  Center,
+  DataItem,
+  getLatestDate,
+  getMarkerImageSrc,
+  groupBy,
+  MarkerData,
+  parseDate,
+} from './utils'
 import {
   CustomOverlayMap,
   Map,
   MapMarker,
   MapTypeId,
 } from 'react-kakao-maps-sdk'
-
-import { MarkerContent, MarkerHeader, ZoomControl } from './components'
+import { format } from 'date-fns'
+import {
+  LayerButton,
+  MarkerContent,
+  MarkerHeader,
+  ZoomControl,
+} from './components'
+import { map, pipe } from 'ramda'
 import './index.css'
 import './MapWalker.css'
-import {
-  Center,
-  DataItem,
-  MarkerData,
-  getLatestDate,
-  getMarkerImageSrc,
-  groupBy,
-  parseDate,
-} from './utils'
 
 interface MapSectionProps {
   mapRef: React.RefObject<kakao.maps.Map>
@@ -47,24 +51,30 @@ export const MapSection: React.FC<MapSectionProps> = ({
   setSelectedMarker,
 }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(8)
-  const [mapTypeIds, setMapTypeIds] = useState<MapTypeIdEnum[] | []>([])
-
-  const handleSetMapTypeIds = (type: MapTypeIdEnum[] | ((prev: MapTypeIdEnum[]) => MapTypeIdEnum[])) => {
-    setMapTypeIds(type instanceof Function ? type(mapTypeIds) : type)
-  }
+  // FIXME:
+  // const [mapTypeIds, setMapTypeIds] = useState<MapTypeIdEnum[] | []>([])
+  // const handleSetMapTypeIds = (type: MapTypeIdEnum[] | ((prev: MapTypeIdEnum[]) => MapTypeIdEnum[])) => {
+  //   setMapTypeIds(type instanceof Function ? type(mapTypeIds) : type)
+  // }
 
   const handleMapClick = (
     _map: kakao.maps.Map,
-    mouseEvent: kakao.maps.event.MouseEvent,
+    mouseEvent: kakao.maps.event.MouseEvent
   ) => {
     if (selectedMarker) setSelectedMarker(null)
-    if (isRoadviewVisible) setCenter({ lat: mouseEvent.latLng.getLat(), lng: mouseEvent.latLng.getLng() })
+    if (isRoadviewVisible)
+      setCenter({
+        lat: mouseEvent.latLng.getLat(),
+        lng: mouseEvent.latLng.getLng(),
+      })
   }
 
-  const handleMapDragEnd = (
-    _map: kakao.maps.Map,
-  ) => {
-    if (isRoadviewVisible) setCenter({ lat: _map.getCenter().getLat(), lng: _map.getCenter().getLng() })
+  const handleMapDragEnd = (_map: kakao.maps.Map) => {
+    if (isRoadviewVisible)
+      setCenter({
+        lat: _map.getCenter().getLat(),
+        lng: _map.getCenter().getLng(),
+      })
   }
 
   const getAngleClassName = (angle: number) => {
@@ -72,26 +82,27 @@ export const MapSection: React.FC<MapSectionProps> = ({
 
     const index = Array.from({ length: 16 })
       .map((_, i) => i)
-      .filter(i => angle > threshold * i && angle < threshold * (i + 1))[0]
+      .filter((i) => angle > threshold * i && angle < threshold * (i + 1))[0]
 
-    return index !== undefined ? "m" + index : ""
+    return index !== undefined ? 'm' + index : ''
   }
 
   const zoomIn = () => {
     const map = mapRef.current
     if (!map) return
-    // map.setLevel(map.getLevel() - 1) // REMOVE:
     setZoomLevel(map.getLevel() - 1)
   }
 
   const zoomOut = () => {
     const map = mapRef.current
     if (!map) return
-    // map.setLevel(map.getLevel() + 1) // REMOVE:
     setZoomLevel(map.getLevel() + 1)
   }
 
-  const markers = useMemo(() => generateMarkers(data, selectedMarker, setSelectedMarker), [data, selectedMarker])
+  const markers = useMemo(
+    () => generateMarkers(data, selectedMarker, setSelectedMarker),
+    [data, selectedMarker]
+  )
 
   useEffect(() => {
     if (!mapRef.current) return
@@ -130,31 +141,24 @@ export const MapSection: React.FC<MapSectionProps> = ({
         setZoomLevel(map.getLevel())
       }}
     >
-      {/* Roadview Marker */}
+      {/* Layer Button */}
+      <LayerButton />
+
+      {/* Roadview Button */}
       {isRoadviewVisible && (
         <>
           <MapTypeId type="ROADVIEW" />
-          <CustomOverlayMap
-            position={center}
-            yAnchor={1}
-
-          >
+          <CustomOverlayMap position={center} yAnchor={1}>
             <div className={`MapWalker ${getAngleClassName(pan)}`}>
               <div className={`angleBack`}></div>
-              <div className={"figure"}></div>
+              <div className={'figure'}></div>
             </div>
           </CustomOverlayMap>
         </>
       )}
 
-      {/* REMOVE:Map Controls */}
-      {/* <MapMenu setMapTypeIds={handleSetMapTypeIds} mapTypeIds={mapTypeIds} /> */}
-
-      {/* Zoom Control */}
+      {/* Zoom Button */}
       <ZoomControl onZoomIn={zoomIn} onZoomOut={zoomOut} />
-
-      {/* REMOVE: Map Types */}
-      {/* {mapTypeIds && mapTypeIds.map(mapTypeId => <MapTypeId type={mapTypeId} key={mapTypeId} />)} */}
 
       {/* Render Markers */}
       {markers}
@@ -162,27 +166,29 @@ export const MapSection: React.FC<MapSectionProps> = ({
   )
 }
 
-//#region 
+//#region
 const generateMarkers = (
   data: DataItem[],
   selectedMarker: MarkerData | null,
-  setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>,
+  setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
 ) => {
-  const groupedData = Object.values(groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`))
+  const groupedData = Object.values(
+    groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`)
+  )
 
   return groupedData
-    .map((group) => group.sort((a, b) => parseDate(b.date).getTime() - parseDate(a.date).getTime()))
+    .map((group) =>
+      group.sort(
+        (a, b) => parseDate(b.date).getTime() - parseDate(a.date).getTime()
+      )
+    )
     .map((group) => {
       const markerData = createMarkerData(group)
       const markerKey = getMarkerKey(group)
 
       const marker = createMapMarker(markerData, markerKey, setSelectedMarker)
 
-      const infoWindow = createInfoWindow(
-        markerData,
-        selectedMarker,
-        markerKey,
-      )
+      const infoWindow = createInfoWindow(markerData, selectedMarker, markerKey)
 
       return infoWindow ? [marker, infoWindow] : [marker]
     })
@@ -196,23 +202,21 @@ const createMarkerData = (group: DataItem[]): MarkerData => {
   const latestDate = calculateLatestDate(group)
   const firstDate = formatFirstDate(group)
 
-  const content = isGroup
-    ? (
-      <>
-        <MarkerHeader {...group[0]} groupSize={group.length} />
-        {group.map((item, index) => (
-          <React.Fragment key={index}>
-            <MarkerContent {...{ ...item, firstDate }} />
-          </React.Fragment>
-        ))}
-      </>
-    )
-    : (
-      <>
-        <MarkerHeader {...group[0]} />
-        <MarkerContent {...group[0]} />
-      </>
-    )
+  const content = isGroup ? (
+    <>
+      <MarkerHeader {...group[0]} groupSize={group.length} />
+      {group.map((item, index) => (
+        <React.Fragment key={index}>
+          <MarkerContent {...{ ...item, firstDate }} />
+        </React.Fragment>
+      ))}
+    </>
+  ) : (
+    <>
+      <MarkerHeader {...group[0]} />
+      <MarkerContent {...group[0]} />
+    </>
+  )
 
   return {
     position,
@@ -225,7 +229,7 @@ const createMarkerData = (group: DataItem[]): MarkerData => {
 const calculateLatestDate = (group: DataItem[]) => {
   return pipe(
     map((item: DataItem) => parseDate(item.date)),
-    getLatestDate,
+    getLatestDate
   )(group)
 }
 
@@ -247,7 +251,7 @@ const getMarkerKey = (group: DataItem[]) => {
 const createMapMarker = (
   markerData: MarkerData,
   markerKey: string,
-  setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>,
+  setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
 ) => {
   return (
     <MapMarker
@@ -267,7 +271,7 @@ const createMapMarker = (
 const createInfoWindow = (
   markerData: MarkerData,
   selectedMarker: MarkerData | null,
-  markerKey: string,
+  markerKey: string
 ) => {
   const isSelected =
     selectedMarker &&
@@ -275,7 +279,11 @@ const createInfoWindow = (
     selectedMarker.position.lng === markerData.position.lng
 
   return isSelected ? (
-    <CustomOverlayMap key={`info-${markerKey}`} position={markerData.position} clickable={true}>
+    <CustomOverlayMap
+      key={`info-${markerKey}`}
+      position={markerData.position}
+      clickable={true}
+    >
       {selectedMarker?.content}
     </CustomOverlayMap>
   ) : null

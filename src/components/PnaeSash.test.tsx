@@ -1,6 +1,6 @@
-import { describe, test, expect } from 'vitest'
-import { render } from '@testing-library/react'
+import { describe, expect, test } from 'vitest'
 import { PaneSash } from './PaneSash'
+import { render } from '@testing-library/react'
 
 describe('PaneSash Component', () => {
   test('renders with horizontal split', () => {
