@@ -49,11 +49,6 @@ const App: React.FC = () => {
       setCollapsed(true)
     }
   }
-
-  const handlePropertyClick = () => {
-    // TODO: 나중에 필터 추가: `/properties?minPrice=1000&maxPrice=5000`
-    navigate('/properties')
-  }
   //#endregion
 
   //#region `useEffect`
@@ -136,7 +131,6 @@ const App: React.FC = () => {
       <SidebarSection
         data={data}
         collapsed={collapsed}
-        handlePropertyClick={handlePropertyClick}
         setCenter={setCenter}
         setSelectedMarker={setSelectedMarker}
       />
@@ -191,6 +185,7 @@ export default App
 //#region
 const mapRowToDataItem = (row: string[]): DataItem => {
   return {
+    id: row[22]?.split('/').at(-1) || '',
     title: row[3],
     latlng: {
       lat: parseFloat(row[0]),
