@@ -22,6 +22,7 @@ import {
   ZoomControl,
 } from './components'
 import { map, pipe } from 'ramda'
+import { useSearchParams } from 'react-router-dom'
 import './index.css'
 import './MapWalker.css'
 
@@ -51,11 +52,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
   setSelectedMarker,
 }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(8)
-  // FIXME:
-  // const [mapTypeIds, setMapTypeIds] = useState<MapTypeIdEnum[] | []>([])
-  // const handleSetMapTypeIds = (type: MapTypeIdEnum[] | ((prev: MapTypeIdEnum[]) => MapTypeIdEnum[])) => {
-  //   setMapTypeIds(type instanceof Function ? type(mapTypeIds) : type)
-  // }
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const handleMapClick = (
     _map: kakao.maps.Map,
@@ -100,7 +97,8 @@ export const MapSection: React.FC<MapSectionProps> = ({
   }
 
   const markers = useMemo(
-    () => generateMarkers(data, selectedMarker, setSelectedMarker),
+    () =>
+      generateMarkers(data, selectedMarker, setSelectedMarker, setSearchParams),
     [data, selectedMarker]
   )
 
@@ -128,6 +126,33 @@ export const MapSection: React.FC<MapSectionProps> = ({
 
     mapRef.current.relayout()
   }, [sizes])
+
+  useEffect(() => {
+    const lat = searchParams.get('lat')
+    const lng = searchParams.get('lng')
+    const id = searchParams.get('id')
+
+    if (lat && lng && id) {
+      const selectedItem = data.find((item) => item.id.toString() === id)
+      if (selectedItem) {
+        setCenter({ lat: parseFloat(lat), lng: parseFloat(lng) })
+        setSelectedMarker({
+          position: { lat: parseFloat(lat), lng: parseFloat(lng) },
+          title: selectedItem.title,
+          content: (
+            <>
+              <MarkerHeader {...selectedItem} />
+              <MarkerContent
+                {...selectedItem}
+                firstDate={format(parseDate(selectedItem.date), 'yy.MM.dd.')}
+              />
+            </>
+          ),
+          latestDate: parseDate(selectedItem.date),
+        })
+      }
+    }
+  }, [searchParams, data])
 
   return (
     <Map
@@ -170,7 +195,8 @@ export const MapSection: React.FC<MapSectionProps> = ({
 const generateMarkers = (
   data: DataItem[],
   selectedMarker: MarkerData | null,
-  setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
+  setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>,
+  setSearchParams: ReturnType<typeof useSearchParams>[1]
 ) => {
   const groupedData = Object.values(
     groupBy(data, (item) => `${item.latlng.lat},${item.latlng.lng}`)
@@ -186,7 +212,12 @@ const generateMarkers = (
       const markerData = createMarkerData(group)
       const markerKey = getMarkerKey(group)
 
-      const marker = createMapMarker(markerData, markerKey, setSelectedMarker)
+      const marker = createMapMarker(
+        markerData,
+        markerKey,
+        setSelectedMarker,
+        setSearchParams
+      )
 
       const infoWindow = createInfoWindow(markerData, selectedMarker, markerKey)
 
@@ -251,7 +282,8 @@ const getMarkerKey = (group: DataItem[]) => {
 const createMapMarker = (
   markerData: MarkerData,
   markerKey: string,
-  setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
+  setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>,
+  setSearchParams: ReturnType<typeof useSearchParams>[1]
 ) => {
   return (
     <MapMarker
@@ -263,7 +295,13 @@ const createMapMarker = (
         src: getMarkerImageSrc(markerData.latestDate),
         size: { width: 24, height: 24 },
       }}
-      onClick={() => setSelectedMarker(markerData)}
+      onClick={() => {
+        setSelectedMarker(markerData)
+        setSearchParams({
+          lat: markerData.position.lat.toString(),
+          lng: markerData.position.lng.toString(),
+        })
+      }}
     />
   )
 }
@@ -283,6 +321,7 @@ const createInfoWindow = (
       key={`info-${markerKey}`}
       position={markerData.position}
       clickable={true}
+      zIndex={99}
     >
       {selectedMarker?.content}
     </CustomOverlayMap>

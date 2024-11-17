@@ -6,11 +6,11 @@ import { Menu, Sidebar, SubMenu } from 'react-pro-sidebar'
 import { Pagination } from './components/Pagination'
 import { PropertyItem } from './components/PropertyItem'
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 export interface SidebarSectionProps {
   data: DataItem[]
   collapsed: boolean
-  handlePropertyClick: () => void
   setCenter: React.Dispatch<React.SetStateAction<Center>>
   setSelectedMarker: React.Dispatch<React.SetStateAction<MarkerData | null>>
 }
@@ -24,6 +24,7 @@ export const SidebarSection = ({
   const itemsPerPage = 10
   const [currentPages, setCurrentPages] = useState<Record<string, number>>({})
   const [groupBy, setGroupBy] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const groupedData = useMemo(() => {
     const groupingFunctions: Record<
@@ -78,6 +79,12 @@ export const SidebarSection = ({
         </>
       ),
       latestDate: parseDate(item.date),
+    })
+
+    setSearchParams({
+      lat: item.latlng.lat.toString(),
+      lng: item.latlng.lng.toString(),
+      id: item.id.toString(),
     })
   }
 
