@@ -16,14 +16,14 @@ describe('MarkerContent', () => {
     firstDate: '2023-01-01',
   }
 
-  test('renders amount correctly with strong emphasis', () => {
+  test('금액이 강조된 형태로 렌더링된다', () => {
     render(<MarkerContent {...mockData} />)
     expect(
-      screen.getByText((content) => content.includes('10억'))
+      screen.getByText((content) => content.includes('억원'))
     ).toBeInTheDocument()
   })
 
-  test('renders links correctly', () => {
+  test('링크가 올바르게 렌더링된다', () => {
     render(<MarkerContent {...mockData} />)
     const kakaoLink = screen.getByAltText('Kakao Map Favicon')
     const naverLink = screen.getByAltText('Naver Favicon')
@@ -40,19 +40,19 @@ describe('MarkerContent', () => {
     )
   })
 
-  test('renders floor, rooms, and bathrooms correctly', () => {
+  test('층수, 방 수, 방향이 올바르게 렌더링된다', () => {
     render(<MarkerContent {...mockData} />)
     expect(
       screen.getByText((content) => content.includes('1/10층 South'))
     ).toBeInTheDocument()
   })
 
-  test('renders additional information correctly', () => {
+  test('추가 정보가 올바르게 렌더링된다', () => {
     render(<MarkerContent {...mockData} />)
     expect(screen.getByText('Close to park')).toBeInTheDocument()
   })
 
-  test('renders registration date and first date correctly', () => {
+  test('등록일과 최초 등록일이 올바르게 렌더링된다', () => {
     render(<MarkerContent {...mockData} />)
     expect(
       screen.getByText((content) =>
@@ -61,7 +61,7 @@ describe('MarkerContent', () => {
     ).toBeInTheDocument()
   })
 
-  test('does not render firstDate if it matches date', () => {
+  test('등록일과 최초 등록일이 같을 때 최초 등록일을 렌더링하지 않는다', () => {
     const sameDateData = {
       ...mockData,
       date: '2023-01-01',

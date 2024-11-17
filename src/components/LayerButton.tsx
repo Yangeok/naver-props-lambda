@@ -1,6 +1,18 @@
 import React from 'react'
 import { FaLayerGroup } from 'react-icons/fa'
 
+/**
+ * LayerButton 컴포넌트는 레이어 아이콘을 표시하는 버튼입니다.
+ * 클릭 가능한 UI 요소로, 특정 레이어 기능을 활성화하거나
+ * 토글할 때 사용할 수 있습니다.
+ *
+ * @component
+ * @example
+ * // LayerButton 컴포넌트는 다음과 같이 사용됩니다.
+ * <LayerButton />
+ *
+ * @returns {JSX.Element} 레이어 버튼을 렌더링하는 React 컴포넌트
+ */
 export const LayerButton: React.FC = () => {
   return (
     <div

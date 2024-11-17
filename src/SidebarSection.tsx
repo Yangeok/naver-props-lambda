@@ -7,7 +7,7 @@ import { Pagination } from './components/Pagination'
 import { PropertyItem } from './components/PropertyItem'
 import { useMemo, useState } from 'react'
 
-interface SidebarSectionProps {
+export interface SidebarSectionProps {
   data: DataItem[]
   collapsed: boolean
   handlePropertyClick: () => void
@@ -83,6 +83,7 @@ export const SidebarSection = ({
 
   return (
     <div
+      data-testid="sidebar-container"
       className={`sidebar-container !fixed !z-40 h-full transition-all duration-300 transform ${
         collapsed ? '-translate-x-full' : 'translate-x-0'
       }`}
@@ -95,38 +96,46 @@ export const SidebarSection = ({
         <Menu>
           <div className="p-4 max-h-[600px] overflow-y-auto">
             <GroupButtons groupBy={groupBy} setGroupBy={setGroupBy} />
-            {Object.entries(groupedData).map(([group, items]) => {
-              const currentPage = currentPages[group] || 0
-              const offset = currentPage * itemsPerPage
-              const pageCount = Math.ceil(items.length / itemsPerPage)
+            {/* groupedData가 비어 있을 때 메시지 표시 */}
+            {Object.keys(groupedData).length === 0 ||
+            Object.values(groupedData).every((group) => group.length === 0) ? (
+              <div className="mt-4 text-center text-gray-500">
+                매물이 없습니다
+              </div>
+            ) : (
+              Object.entries(groupedData).map(([group, items]) => {
+                const currentPage = currentPages[group] || 0
+                const offset = currentPage * itemsPerPage
+                const pageCount = Math.ceil(items.length / itemsPerPage)
 
-              return (
-                <div key={group} className="mb-4 bg-transparent">
-                  <SubMenu
-                    label={`${group === 'All' ? '전체 매물' : group} ${
-                      items.length > 0 && ` (${items.length})`
-                    }`}
-                    className="mb-2 text-base font-semibold"
-                  >
-                    {items
-                      .slice(offset, offset + itemsPerPage)
-                      .map((item, index) => (
-                        <PropertyItem
-                          key={index}
-                          item={item}
-                          onClick={handleItemClick}
+                return (
+                  <div key={group} className="mb-4 bg-transparent">
+                    <SubMenu
+                      label={`${group === 'All' ? '전체 매물' : group} ${
+                        items.length > 0 && ` (${items.length})`
+                      }`}
+                      className="mb-2 text-base font-semibold"
+                    >
+                      {items
+                        .slice(offset, offset + itemsPerPage)
+                        .map((item, index) => (
+                          <PropertyItem
+                            key={index}
+                            item={item}
+                            onClick={handleItemClick}
+                          />
+                        ))}
+                      {pageCount > 1 && (
+                        <Pagination
+                          pageCount={pageCount}
+                          onPageChange={handlePageChange(group)}
                         />
-                      ))}
-                    {pageCount > 1 && (
-                      <Pagination
-                        pageCount={pageCount}
-                        onPageChange={handlePageChange(group)}
-                      />
-                    )}
-                  </SubMenu>
-                </div>
-              )
-            })}
+                      )}
+                    </SubMenu>
+                  </div>
+                )
+              })
+            )}
           </div>
         </Menu>
       </Sidebar>
