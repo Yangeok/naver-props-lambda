@@ -191,6 +191,7 @@ export default App
 //#region
 const mapRowToDataItem = (row: string[]): DataItem => {
   return {
+    id: row[22]?.split('/').at(-1) || '',
     title: row[3],
     latlng: {
       lat: parseFloat(row[0]),

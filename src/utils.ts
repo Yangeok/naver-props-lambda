@@ -41,6 +41,9 @@ export interface Center {
  * 아파트나 건물 등 부동산 정보를 표시하거나 처리하는 애플리케이션에서 사용됩니다.
  */
 export interface DataItem {
+  /** 매물 ID */
+  id: string
+
   /** 매물 이름 */
   title: string
 
