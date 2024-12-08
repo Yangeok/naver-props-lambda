@@ -3,16 +3,16 @@ global.ResizeObserver = class {
   unobserve() {}
   disconnect() {}
 } as any
-
-import { act, cleanup } from '@testing-library/react'
-import { DataItem } from './utils'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
 import { SidebarSection, SidebarSectionProps } from './SidebarSection'
+import { DataItem } from './utils'
 
 describe('SidebarSection 컴포넌트', () => {
   const mockData: DataItem[] = [
     {
+      id: '테스트 매물 1',
       title: '테스트 매물 1',
       amount: 10,
       size: '85',
@@ -35,6 +35,7 @@ describe('SidebarSection 컴포넌트', () => {
       additionalInfo: '추가 정보',
     },
     {
+      id: '테스트 매물 2',
       title: '테스트 매물 2',
       amount: 20,
       size: '100',
@@ -63,14 +64,17 @@ describe('SidebarSection 컴포넌트', () => {
   const props: SidebarSectionProps = {
     data: mockData,
     collapsed: false,
-    handlePropertyClick: vi.fn(),
     setCenter: mockSetCenter,
     setSelectedMarker: mockSetSelectedMarker,
   }
 
   it('그룹 버튼을 클릭하여 데이터를 그룹화할 수 있다', () => {
     // given: SidebarSection 컴포넌트가 렌더링됨
-    render(<SidebarSection {...props} />)
+    render(
+      <MemoryRouter>
+        <SidebarSection {...props} />
+      </MemoryRouter>
+    )
 
     // when: '구조' 그룹 버튼을 클릭
     const groupButton = screen.getByText('구조')
@@ -90,7 +94,11 @@ describe('SidebarSection 컴포넌트', () => {
       ...mockData[0],
       title: `매물 ${i + 1}`,
     }))
-    render(<SidebarSection {...props} data={largeData} />)
+    render(
+      <MemoryRouter>
+        <SidebarSection {...props} data={largeData} />
+      </MemoryRouter>
+    )
 
     // when: 페이지네이션의 다음 페이지 버튼을 클릭
     const nextPageButton = screen.getByText('>')
@@ -104,14 +112,22 @@ describe('SidebarSection 컴포넌트', () => {
 
   it('collapsed 상태에 따라 Sidebar의 표시 상태가 변경된다', () => {
     // given: collapsed가 false인 경우
-    render(<SidebarSection {...props} collapsed={false} />)
+    render(
+      <MemoryRouter>
+        <SidebarSection {...props} collapsed={false} />
+      </MemoryRouter>
+    )
     // then: Sidebar가 화면에 표시되는지 확인
     expect(screen.getByTestId('sidebar-container')).toHaveClass('translate-x-0')
 
     cleanup()
 
     // when: collapsed가 true인 경우
-    render(<SidebarSection {...props} collapsed={true} />)
+    render(
+      <MemoryRouter>
+        <SidebarSection {...props} collapsed={true} />
+      </MemoryRouter>
+    )
     // then: Sidebar가 화면에서 숨겨지는지 확인
     expect(screen.getByTestId('sidebar-container')).toHaveClass(
       '-translate-x-full'
@@ -120,7 +136,11 @@ describe('SidebarSection 컴포넌트', () => {
 
   it('groupBy 값이 변경될 때 데이터가 올바르게 그룹화된다', () => {
     // given: SidebarSection이 렌더링됨
-    render(<SidebarSection {...props} />)
+    render(
+      <MemoryRouter>
+        <SidebarSection {...props} />
+      </MemoryRouter>
+    )
 
     // when: 그룹 버튼을 클릭하여 groupBy 값을 변경
     fireEvent.click(screen.getByText('지역'))
@@ -135,7 +155,11 @@ describe('SidebarSection 컴포넌트', () => {
 
   it('groupedData가 비어 있을 때 적절한 메시지를 표시한다', () => {
     // given: 빈 데이터를 props로 전달하여 SidebarSection 렌더링
-    render(<SidebarSection {...props} data={[]} />)
+    render(
+      <MemoryRouter>
+        <SidebarSection {...props} data={[]} />
+      </MemoryRouter>
+    )
 
     // then: '매물이 없습니다' 메시지가 표시되는지 확인
     expect(screen.getByText(/매물이 없습니다/)).toBeInTheDocument()
