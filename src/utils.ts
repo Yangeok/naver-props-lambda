@@ -103,6 +103,21 @@ export interface DataItem {
 
   /** 정보 업데이트 날짜 */
   date: string
+
+  /** 시세 업데이트 날짜 */
+  priceDate?: string
+
+  /** 매매가 최대 */
+  dealPriceMax?: number
+
+  /** 매매가 최소 */
+  dealPriceMin?: number
+
+  /** 전세가 최대 */
+  depositPriceMax?: number
+
+  /** 전세가 최소 */
+  depositPriceMin?: number
 }
 
 /**
@@ -249,4 +264,56 @@ export const utf8ToBase64 = (str: string): string => {
   const binary = String.fromCharCode(...bytes)
 
   return btoa(binary)
+}
+
+/**
+ * 주어진 호가(amount)를 기준으로 최저가, 최대가 대비 매물의 분석 결과를 반환합니다.
+ *
+ * @param {number} amount - 현재 매물의 호가.
+ * @param {number} depositPriceMin - 전체 매물의 최저가.
+ * @param {number} depositPriceMax - 전체 매물의 최대가.
+ * @returns {{ percentText: string; priceComparison: string; clampedInRange: string }} 분석 결과를 담은 객체를 반환합니다.
+ * - `percentText`: 최저가 대비 % 값.
+ * - `isExpensive`: 매물이 최저가보다 비싸다면 `true`, 아니면 `false`.
+ * - `clampedInRange`: 범위를 0% ~ 100%로 제한한 값.
+ *
+ * @throws {Error} 만약 `depositPriceMin`과 `depositPriceMax`가 동일하다면,
+ * 계산 오류를 방지하기 위해 예외를 발생시킵니다.
+ *
+ * @example
+ * const amount = 30000;
+ * const depositPriceMin = 20000;
+ * const depositPriceMax = 50000;
+ *
+ * const result = analyzeDeposit(amount, depositPriceMin, depositPriceMax);
+ * console.log(result.isExpensive); // true
+ * console.log(result.percentText); // "50.00%"
+ * console.log(result.clampedInRange); // 40.00
+ */
+export const analyzeDeposit = (
+  amount: number,
+  depositPriceMin: number,
+  depositPriceMax: number
+): { percentText: string; isExpensive: boolean; clampedInRange: string } => {
+  if (depositPriceMin === depositPriceMax) {
+    throw new Error('최저가와 최대가는 같을 수 없습니다.')
+  }
+
+  // 최저가 대비 % 계산
+  const percentAboveMin = ((amount - depositPriceMin) / depositPriceMin) * 100
+
+  // 전체 구간 내 % 계산
+  const percentInRange =
+    ((amount - depositPriceMin) / (depositPriceMax - depositPriceMin)) * 100
+
+  // 고가 여부 판별
+  const isExpensive = amount >= depositPriceMin
+
+  // 범위를 0% ~ 100%로 제한
+  const clampedInRange = Math.max(0, Math.min(100, percentInRange)).toFixed(2)
+
+  // 텍스트 생성
+  const percentText = `${Math.abs(percentAboveMin).toFixed(2)}`
+
+  return { percentText, isExpensive, clampedInRange }
 }
