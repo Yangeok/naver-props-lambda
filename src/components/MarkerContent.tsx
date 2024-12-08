@@ -1,4 +1,5 @@
 import React from 'react'
+import { DepositAnalysis } from './'
 
 /**
  * 마커 콘텐츠의 상세 정보를 담고 있는 인터페이스입니다.
@@ -34,6 +35,15 @@ export interface IMarkerContent {
 
   /** 매물의 첫 등록일 (선택적 필드) */
   firstDate?: string
+
+  /** 시세 업데이트 날짜 (선택적 필드) */
+  priceDate?: string
+
+  /** 전세가 최대 (선택적 필드) */
+  depositPriceMax?: number
+
+  /** 전세가 최소 (선택적 필드) */
+  depositPriceMin?: number
 }
 
 export const MarkerContent: React.FC<IMarkerContent> = ({
@@ -46,6 +56,8 @@ export const MarkerContent: React.FC<IMarkerContent> = ({
   date,
   direction,
   firstDate,
+  depositPriceMax,
+  depositPriceMin,
 }) => {
   const renderLink = (url: string, altText: string, iconUrl: string) => (
     <a href={url} target="_blank" rel="noopener noreferrer" className="ml-1">
@@ -73,7 +85,13 @@ export const MarkerContent: React.FC<IMarkerContent> = ({
           'https://www.naver.com/favicon.ico'
         )}
       </div>
-      <div className="text-xs whitespace-normal"></div>
+      {depositPriceMax && depositPriceMin && (
+        <DepositAnalysis
+          amount={amount}
+          depositPriceMin={depositPriceMin}
+          depositPriceMax={depositPriceMax}
+        />
+      )}
       <div className="text-xs whitespace-normal">{additionalInfo}</div>
       <div className="text-xs whitespace-normal">
         {date} 등록

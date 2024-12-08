@@ -24,7 +24,7 @@ export const SidebarSection = ({
   const itemsPerPage = 10
   const [currentPages, setCurrentPages] = useState<Record<string, number>>({})
   const [groupBy, setGroupBy] = useState('')
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [_, setSearchParams] = useSearchParams()
 
   const groupedData = useMemo(() => {
     const groupingFunctions: Record<

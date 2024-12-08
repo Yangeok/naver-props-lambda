@@ -1,21 +1,18 @@
-import Div100vh from 'react-div-100vh'
-import React, { useEffect, useRef, useState } from 'react'
 import { Allotment } from 'allotment'
-import { Center, DataItem, MarkerData } from './utils'
+import 'allotment/dist/style.css'
+import React, { useEffect, useRef, useState } from 'react'
+import Div100vh from 'react-div-100vh'
 import { HiMenu } from 'react-icons/hi'
+import { useKakaoLoader } from 'react-kakao-maps-sdk'
 import { MapSection } from './MapSection'
-import { RoadviewButton } from './components'
 import { RoadviewSection } from './RoadviewSection'
 import { SidebarSection } from './SidebarSection'
+import { RoadviewButton } from './components'
 import { useFetchCsv } from './hooks'
-import { useKakaoLoader } from 'react-kakao-maps-sdk'
-import { useNavigate } from 'react-router-dom'
 import './index.css'
-import 'allotment/dist/style.css'
+import { Center, DataItem, MarkerData } from './utils'
 
 const App: React.FC = () => {
-  const navigate = useNavigate()
-
   useKakaoLoader({
     appkey: String(import.meta.env.VITE_KAKAO_APP_KEY),
     libraries: ['services'],
@@ -209,6 +206,11 @@ const mapRowToDataItem = (row: string[]): DataItem => {
     length: Number(row[9]).toFixed(0),
     additionalInfo: row[11],
     date: row[2],
+    priceDate: row[24],
+    dealPriceMax: Number(row[25]) / 1e8 || undefined,
+    dealPriceMin: Number(row[26]) / 1e8 || undefined,
+    depositPriceMax: Number(row[27]) / 1e8 || undefined,
+    depositPriceMin: Number(row[28]) / 1e8 || undefined,
   }
 }
 //#endregion
