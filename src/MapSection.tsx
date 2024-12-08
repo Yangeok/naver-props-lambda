@@ -54,6 +54,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
   const [zoomLevel, setZoomLevel] = useState<number>(8)
   const [searchParams, setSearchParams] = useSearchParams()
 
+  //#region handler fns
   const handleMapClick = (
     _map: kakao.maps.Map,
     mouseEvent: kakao.maps.event.MouseEvent
@@ -95,6 +96,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
     if (!map) return
     setZoomLevel(map.getLevel() + 1)
   }
+  //#endregion
 
   const markers = useMemo(
     () =>
@@ -102,6 +104,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
     [data, selectedMarker]
   )
 
+  //#region `useEffect`
   useEffect(() => {
     if (!mapRef.current) return
 
@@ -153,6 +156,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
       }
     }
   }, [searchParams, data])
+  //#endregion
 
   return (
     <Map
