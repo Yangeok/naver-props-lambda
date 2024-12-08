@@ -7,6 +7,7 @@ describe('PropertyItem 컴포넌트', () => {
   it('주어진 데이터 항목이 화면에 올바르게 렌더링된다', () => {
     // given: 데이터 항목과 mock onClick 함수 설정
     const item: DataItem = {
+      id: '테스트 매물 1',
       title: '테스트 아파트',
       amount: 10,
       size: '85',
@@ -44,6 +45,7 @@ describe('PropertyItem 컴포넌트', () => {
   it('항목을 클릭하면 onClick 함수가 호출된다', () => {
     // given: 데이터 항목과 mock onClick 함수 설정
     const item: DataItem = {
+      id: '테스트 매물 1',
       title: '테스트 아파트',
       amount: 10,
       size: '85',
